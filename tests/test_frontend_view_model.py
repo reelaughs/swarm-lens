@@ -121,3 +121,17 @@ def test_schema_describes_the_reusable_frozen_episode_contract() -> None:
     assert schema["$defs"]["episode"]["properties"]["turningPointCount"]["minimum"] == 1
     required = set(schema["$defs"]["turningPoint"]["required"])
     assert {"rank", "signals", "deterministicDescriptions", "interpretation"} <= required
+
+
+def test_explicit_runtime_artifact_roots_preserve_the_frozen_contract() -> None:
+    slug = "perform-novel-research"
+    explicit = MODULE.build_view_model(
+        ROOT,
+        slug,
+        MANIFEST_PATH,
+        canonical_path=ROOT / "data" / "processed" / "episodes" / slug / "events.parquet",
+        episode_output_dir=ROOT / "outputs" / "episodes" / slug,
+        episode_interim_dir=ROOT / "data" / "interim" / "episodes" / slug,
+    )
+    default = MODULE.build_view_model(ROOT, slug, MANIFEST_PATH)
+    assert explicit == default

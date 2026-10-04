@@ -1,12 +1,15 @@
+fastapi<1,>=0.115
 joblib<2,>=1.4
 matplotlib<4,>=3.9
 openai<3,>=2
 pydantic<3,>=2.10
 pyarrow<23,>=18
 python-dotenv<2,>=1.0
+python-multipart<1,>=0.0.20
 scikit-learn<2,>=1.6
 scipy<2,>=1.14
 tzdata>=2025.2
+uvicorn<1,>=0.34
 
 [dev]
 pytest<10,>=8

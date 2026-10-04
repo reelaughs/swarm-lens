@@ -1,8 +1,11 @@
 # Research data and generated outputs
 data/raw/
+data/uploads/
 data/interim/
 data/processed/
 outputs/cached/
+outputs/runs/
+var/
 
 # Local environment and logs
 .env

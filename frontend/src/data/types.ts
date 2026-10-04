@@ -20,6 +20,47 @@ export interface EpisodeCatalog {
   episodes: EpisodeCatalogEntry[];
 }
 
+export type DatasetStatus = "uploaded" | "validating" | "ready_for_episode_selection" | "failed";
+
+export interface DatasetRecord {
+  id: string;
+  adapter_id: "ai_village";
+  status: DatasetStatus;
+  created_at: string;
+  updated_at: string;
+  validation: Record<string, unknown> | null;
+  error: string | null;
+}
+
+export interface InvestigationScope {
+  scope_id: string;
+  title: string;
+  start: string;
+  end: string | null;
+  slug: string;
+  runnable: boolean;
+  warnings: string[];
+  blocking_reason: string | null;
+}
+
+export type RunStatus = "queued" | "running" | "awaiting_interpretation_approval" | "interpreting" | "packaging" | "completed" | "failed";
+
+export interface AnalysisRun {
+  id: string;
+  dataset_id: string;
+  scope_id: string;
+  episode_slug: string;
+  status: RunStatus;
+  phase: string;
+  created_at: string;
+  updated_at: string;
+  retryable: boolean;
+  failure_kind: string | null;
+  error: string | null;
+  interpretation_requires_approval: boolean;
+  view_model_available: boolean;
+}
+
 export interface DistributionChange {
   label: string;
   before: number;

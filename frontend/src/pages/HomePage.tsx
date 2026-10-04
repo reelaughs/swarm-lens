@@ -2,13 +2,15 @@ import type { MouseEvent } from "react";
 import type { EpisodeCatalogEntry } from "../data/types";
 import { utcDate } from "../lib/format";
 import { episodePath } from "../lib/routes";
+import { DatasetLauncher } from "../components/DatasetLauncher";
 
 interface Props {
   episodes: EpisodeCatalogEntry[];
   onOpenEpisode: (slug: string) => void;
+  onDatasetCreated: (datasetId: string) => void;
 }
 
-export function HomePage({ episodes, onOpenEpisode }: Props) {
+export function HomePage({ episodes, onOpenEpisode, onDatasetCreated }: Props) {
   const openEpisode = (event: MouseEvent<HTMLAnchorElement>, slug: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -27,22 +29,16 @@ export function HomePage({ episodes, onOpenEpisode }: Props) {
       </section>
 
       <div className="launcher-grid">
-        <section className="launcher-panel launcher-panel--upcoming" aria-labelledby="analyze-heading">
+        <section className="launcher-panel" aria-labelledby="analyze-heading">
           <div className="launcher-number">01</div>
           <div className="section-label">Analyze a dataset</div>
           <h2 id="analyze-heading">Analyze dataset</h2>
           <p>
-            Upload a multi-agent interaction dataset, validate it, choose an episode or time window,
+            Upload a multi-agent interaction dataset, validate it, choose an episode,
             and run a retrospective swarm investigation.
           </p>
-          <div className="upcoming-workflow" aria-label="Dataset ingestion coming next">
-            <span>Upcoming workflow</span>
-            <strong>Dataset ingestion coming next</strong>
-            <small>
-              Initial support will use the AI Village schema, with an adapter-based path for additional
-              multi-agent datasets.
-            </small>
-          </div>
+          <DatasetLauncher onCreated={onDatasetCreated} />
+          <p className="workflow-note">Custom investigation windows and additional dataset adapters are planned.</p>
         </section>
 
         <section className="launcher-panel" aria-labelledby="examples-heading">

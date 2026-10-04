@@ -202,19 +202,10 @@ def _component_changes(row: dict[str, Any], key: str) -> Any:
 
 
 def _stage4_paths(
-    root: Path, episode_slug: str, cache_keys: dict[int, str], rank: int
+    episode_interim_dir: Path, cache_keys: dict[int, str], rank: int
 ) -> dict[str, Path]:
     cache_key = cache_keys[rank]
-    base = (
-        root
-        / "data"
-        / "interim"
-        / "episodes"
-        / episode_slug
-        / "interpretation"
-        / cache_key
-        / f"candidate_{rank}"
-    )
+    base = episode_interim_dir / "interpretation" / cache_key / f"candidate_{rank}"
     return {
         "validated": base / "validated_interpretation.json",
         "bundle": base / "input_evidence_bundle.json",
@@ -226,6 +217,7 @@ def _validate_stage4(
     *,
     root: Path,
     episode_slug: str,
+    episode_interim_dir: Path,
     cache_keys: dict[int, str],
     rank: int,
     stage3_hash: str,
@@ -235,7 +227,7 @@ def _validate_stage4(
     system_prompt_hash: str,
     developer_prompt_hash: str,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Path]]:
-    paths = _stage4_paths(root, episode_slug, cache_keys, rank)
+    paths = _stage4_paths(episode_interim_dir, cache_keys, rank)
     missing = [str(path) for path in paths.values() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Candidate {rank} frozen Stage 4 artifact missing: {missing}")
@@ -320,6 +312,10 @@ def build_view_model(
     root: Path,
     episode_slug: str,
     manifest_path: Path = DEFAULT_ARTIFACT_MANIFEST,
+    *,
+    canonical_path: Path | None = None,
+    episode_output_dir: Path | None = None,
+    episode_interim_dir: Path | None = None,
 ) -> dict[str, Any]:
     root = root.resolve()
     manifest_path = manifest_path.resolve()
@@ -327,19 +323,26 @@ def build_view_model(
     expected_goal = episode_artifacts["expected_goal"]
     expected_ranks = episode_artifacts["candidate_ranks"]
     cache_keys = episode_artifacts["stage4_cache_keys"]
-    canonical_path = root / "data" / "processed" / "episodes" / episode_slug / "events.parquet"
-    stage2_candidates_path = (
-        root / "outputs" / "episodes" / episode_slug / "turning_points" / "top_candidates.parquet"
+    canonical_path = (
+        canonical_path.resolve()
+        if canonical_path is not None
+        else root / "data" / "processed" / "episodes" / episode_slug / "events.parquet"
     )
-    stage2_config_path = (
-        root / "outputs" / "episodes" / episode_slug / "turning_points" / "resolved_configuration.json"
+    episode_output_dir = (
+        episode_output_dir.resolve()
+        if episode_output_dir is not None
+        else root / "outputs" / "episodes" / episode_slug
     )
-    brief_path = root / "outputs" / "episodes" / episode_slug / "turning_points" / "candidate_brief.json"
+    episode_interim_dir = (
+        episode_interim_dir.resolve()
+        if episode_interim_dir is not None
+        else root / "data" / "interim" / "episodes" / episode_slug
+    )
+    stage2_candidates_path = episode_output_dir / "turning_points" / "top_candidates.parquet"
+    stage2_config_path = episode_output_dir / "turning_points" / "resolved_configuration.json"
+    brief_path = episode_output_dir / "turning_points" / "candidate_brief.json"
     stage3_path = (
-        root
-        / "outputs"
-        / "episodes"
-        / episode_slug
+        episode_output_dir
         / "turning_points"
         / "evidence_reconstruction"
         / "evidence_reconstruction.json"
@@ -462,6 +465,7 @@ def build_view_model(
         validated, interpretation, stage4_evidence, stage4_paths = _validate_stage4(
             root=root,
             episode_slug=episode_slug,
+            episode_interim_dir=episode_interim_dir,
             cache_keys=cache_keys,
             rank=rank,
             stage3_hash=stage3_hash,
@@ -677,8 +681,19 @@ def write_view_model(
     output_path: Path,
     episode_slug: str,
     manifest_path: Path = DEFAULT_ARTIFACT_MANIFEST,
+    *,
+    canonical_path: Path | None = None,
+    episode_output_dir: Path | None = None,
+    episode_interim_dir: Path | None = None,
 ) -> dict[str, Any]:
-    value = build_view_model(root, episode_slug, manifest_path)
+    value = build_view_model(
+        root,
+        episode_slug,
+        manifest_path,
+        canonical_path=canonical_path,
+        episode_output_dir=episode_output_dir,
+        episode_interim_dir=episode_interim_dir,
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -692,6 +707,9 @@ def main() -> None:
     parser.add_argument("--episode", required=True)
     parser.add_argument("--artifact-manifest", type=Path, default=DEFAULT_ARTIFACT_MANIFEST)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--canonical-path", type=Path)
+    parser.add_argument("--episode-output-dir", type=Path)
+    parser.add_argument("--episode-interim-dir", type=Path)
     args = parser.parse_args()
     root = args.root.resolve()
     output = (
@@ -699,7 +717,15 @@ def main() -> None:
         if args.output
         else root / "frontend" / "public" / "data" / f"{args.episode}.json"
     )
-    write_view_model(root, output, args.episode, args.artifact_manifest.resolve())
+    write_view_model(
+        root,
+        output,
+        args.episode,
+        args.artifact_manifest.resolve(),
+        canonical_path=args.canonical_path,
+        episode_output_dir=args.episode_output_dir,
+        episode_interim_dir=args.episode_interim_dir,
+    )
     print(f"Validated and wrote {_relative(output, root)}")
 
 

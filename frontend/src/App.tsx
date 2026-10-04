@@ -1,10 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "./components/SiteHeader";
 import { loadEpisode, loadEpisodeCatalog } from "./data/loadEpisode";
+import { loadRuntimeEpisode } from "./data/api";
 import type { EpisodeCatalog, EpisodeViewModel } from "./data/types";
-import { episodePath, parseRoute, turningPointPath, type AppRoute } from "./lib/routes";
+import {
+  datasetPath,
+  episodePath,
+  parseRoute,
+  runPath,
+  runtimeEpisodePath,
+  runtimeTurningPointPath,
+  turningPointPath,
+  type AppRoute,
+} from "./lib/routes";
+import { DatasetPage } from "./pages/DatasetPage";
 import { EpisodeMapPage } from "./pages/EpisodeMapPage";
 import { HomePage } from "./pages/HomePage";
+import { RunStatusPage } from "./pages/RunStatusPage";
 import { TurningPointPage } from "./pages/TurningPointPage";
 
 function StatePage({
@@ -35,6 +47,9 @@ export default function App() {
   const [data, setData] = useState<EpisodeViewModel | null>(null);
   const [episodeError, setEpisodeError] = useState<string | null>(null);
   const [episodeLoading, setEpisodeLoading] = useState(false);
+  const [runtimeData, setRuntimeData] = useState<EpisodeViewModel | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
+  const [runtimeLoading, setRuntimeLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -91,6 +106,33 @@ export default function App() {
     return () => { active = false; };
   }, [activeEntry, catalog, invalidRequestedRank]);
 
+  const runtimeRoute = route.kind === "runtimeEpisode" || route.kind === "runtimeTurningPoint" ? route : null;
+  useEffect(() => {
+    let active = true;
+    if (!runtimeRoute) {
+      setRuntimeData(null);
+      setRuntimeError(null);
+      setRuntimeLoading(false);
+      return () => { active = false; };
+    }
+    setRuntimeData(null);
+    setRuntimeError(null);
+    setRuntimeLoading(true);
+    loadRuntimeEpisode(runtimeRoute.runId)
+      .then((value) => {
+        if (!active) return;
+        if (value.episode.slug !== runtimeRoute.slug) {
+          throw new Error("Runtime route/view-model episode mismatch.");
+        }
+        setRuntimeData(value);
+      })
+      .catch((reason: unknown) => {
+        if (active) setRuntimeError(reason instanceof Error ? reason.message : "Could not load runtime investigation.");
+      })
+      .finally(() => { if (active) setRuntimeLoading(false); });
+    return () => { active = false; };
+  }, [runtimeRoute?.runId, runtimeRoute?.slug]);
+
   const navigate = (path: string) => {
     if (window.location.pathname !== path) window.history.pushState({}, "", path);
     setRoute(parseRoute(path));
@@ -98,7 +140,52 @@ export default function App() {
   };
 
   let content;
-  if (catalogError) {
+  if (route.kind === "dataset") {
+    content = <DatasetPage datasetId={route.datasetId} onRunCreated={(runId) => navigate(runPath(runId))} />;
+  } else if (route.kind === "run") {
+    content = (
+      <RunStatusPage
+        runId={route.runId}
+        onOpen={(run) => navigate(runtimeEpisodePath(run.id, run.episode_slug))}
+      />
+    );
+  } else if (runtimeRoute) {
+    const invalidRuntimeRank = runtimeRoute.kind === "runtimeTurningPoint" && (
+      runtimeRoute.rank === null || runtimeRoute.rank < 1 || !Number.isInteger(runtimeRoute.rank)
+    );
+    if (invalidRuntimeRank) {
+      content = (
+        <StatePage
+          eyebrow="Invalid turning point"
+          title="Turning point not found"
+          message={`Turning-point rank “${runtimeRoute.rankSegment}” is not valid.`}
+          action={{ label: "Return to run", onClick: () => navigate(runPath(runtimeRoute.runId)) }}
+        />
+      );
+    } else if (runtimeError) {
+      content = <StatePage eyebrow="Loading error" title="Investigation could not be loaded" message={runtimeError} action={{ label: "Return to run", onClick: () => navigate(runPath(runtimeRoute.runId)) }} />;
+    } else if (runtimeLoading || !runtimeData) {
+      content = <main className="state-message"><p>Loading runtime investigation…</p></main>;
+    } else if (runtimeRoute.kind === "runtimeTurningPoint") {
+      const point = runtimeData.turningPoints.find((value) => value.rank === runtimeRoute.rank);
+      content = point ? (
+        <TurningPointPage
+          data={runtimeData}
+          point={point}
+          onBack={() => navigate(runtimeEpisodePath(runtimeRoute.runId, runtimeData.episode.slug))}
+        />
+      ) : (
+        <StatePage eyebrow="Invalid turning point" title="Turning point not found" message={`Turning-point rank “${runtimeRoute.rankSegment}” is not available for ${runtimeData.episode.goalText}.`} action={{ label: "Return to episode map", onClick: () => navigate(runtimeEpisodePath(runtimeRoute.runId, runtimeData.episode.slug)) }} />
+      );
+    } else {
+      content = (
+        <EpisodeMapPage
+          data={runtimeData}
+          onInvestigate={(rank) => navigate(runtimeTurningPointPath(runtimeRoute.runId, runtimeData.episode.slug, rank))}
+        />
+      );
+    }
+  } else if (catalogError) {
     content = <StatePage eyebrow="Catalog error" title="Investigations unavailable" message={catalogError} />;
   } else if (!catalog) {
     content = <main className="state-message"><p>Loading investigation catalog…</p></main>;
@@ -112,7 +199,13 @@ export default function App() {
       />
     );
   } else if (route.kind === "home") {
-    content = <HomePage episodes={catalog.episodes} onOpenEpisode={(slug) => navigate(episodePath(slug))} />;
+    content = (
+      <HomePage
+        episodes={catalog.episodes}
+        onOpenEpisode={(slug) => navigate(episodePath(slug))}
+        onDatasetCreated={(datasetId) => navigate(datasetPath(datasetId))}
+      />
+    );
   } else if (!activeEntry) {
     content = (
       <StatePage
@@ -172,7 +265,10 @@ export default function App() {
   return (
     <div className="app-shell">
       <SiteHeader
-        label={data && data.episode.slug === activeSlug ? data.presentation.label : undefined}
+        label={
+          runtimeData?.presentation.label
+          ?? (data && data.episode.slug === activeSlug ? data.presentation.label : undefined)
+        }
         onHome={() => navigate("/")}
       />
       {content}

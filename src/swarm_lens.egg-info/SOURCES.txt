@@ -1,6 +1,7 @@
 README.md
 pyproject.toml
 src/swarm_lens/__init__.py
+src/swarm_lens/api.py
 src/swarm_lens/ingestion.py
 src/swarm_lens/validation.py
 src/swarm_lens.egg-info/PKG-INFO
@@ -8,6 +9,10 @@ src/swarm_lens.egg-info/SOURCES.txt
 src/swarm_lens.egg-info/dependency_links.txt
 src/swarm_lens.egg-info/requires.txt
 src/swarm_lens.egg-info/top_level.txt
+src/swarm_lens/datasets/__init__.py
+src/swarm_lens/datasets/ai_village.py
+src/swarm_lens/datasets/base.py
+src/swarm_lens/datasets/secure_upload.py
 src/swarm_lens/evidence_reconstruction/__init__.py
 src/swarm_lens/evidence_reconstruction/antecedents.py
 src/swarm_lens/evidence_reconstruction/config.py
@@ -17,6 +22,10 @@ src/swarm_lens/evidence_reconstruction/reporting.py
 src/swarm_lens/evidence_reconstruction/semantics.py
 src/swarm_lens/evidence_reconstruction/structure.py
 src/swarm_lens/evidence_reconstruction/windows.py
+src/swarm_lens/execution/__init__.py
+src/swarm_lens/execution/jobs.py
+src/swarm_lens/execution/runner.py
+src/swarm_lens/execution/worker.py
 src/swarm_lens/interpretation/__init__.py
 src/swarm_lens/interpretation/config.py
 src/swarm_lens/interpretation/evidence_bundle.py
@@ -40,6 +49,7 @@ src/swarm_lens/turning_points/topics.py
 src/swarm_lens/turning_points/windowing.py
 tests/test_candidate_context.py
 tests/test_evidence_reconstruction.py
+tests/test_frontend_view_model.py
 tests/test_ingestion.py
 tests/test_interpretation.py
 tests/test_turning_points.py

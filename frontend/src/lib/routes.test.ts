@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { episodePath, parseRoute, turningPointPath } from "./routes";
+import { episodePath, parseRoute, runtimeEpisodePath, runtimeTurningPointPath, turningPointPath } from "./routes";
 
 describe("application routes", () => {
   it("parses home, episode, and turning-point paths", () => {
@@ -42,5 +42,27 @@ describe("application routes", () => {
     expect(turningPointPath("perform-novel-research", 2)).toBe(
       "/episodes/perform-novel-research/turning-points/2",
     );
+  });
+
+  it("parses runtime investigations without changing frozen example routes", () => {
+    expect(parseRoute("/runs/run_123/episodes/runtime-episode")).toEqual({
+      kind: "runtimeEpisode",
+      runId: "run_123",
+      slug: "runtime-episode",
+    });
+    expect(parseRoute("/runs/run_123/episodes/runtime-episode/turning-points/2")).toEqual({
+      kind: "runtimeTurningPoint",
+      runId: "run_123",
+      slug: "runtime-episode",
+      rank: 2,
+      rankSegment: "2",
+    });
+    expect(runtimeEpisodePath("run_123", "runtime-episode")).toBe(
+      "/runs/run_123/episodes/runtime-episode",
+    );
+    expect(runtimeTurningPointPath("run_123", "runtime-episode", 2)).toBe(
+      "/runs/run_123/episodes/runtime-episode/turning-points/2",
+    );
+    expect(episodePath("perform-novel-research")).toBe("/episodes/perform-novel-research");
   });
 });

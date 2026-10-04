@@ -27,6 +27,32 @@ class TopicRepresentation:
     metadata: dict[str, Any]
 
 
+def _vectorizer(config: TopicModelConfig) -> TfidfVectorizer:
+    return TfidfVectorizer(
+        lowercase=True,
+        strip_accents="unicode",
+        stop_words="english",
+        ngram_range=(config.ngram_min, config.ngram_max),
+        min_df=config.min_df,
+        max_df=config.max_df,
+        max_features=config.max_features,
+        sublinear_tf=True,
+        norm="l2",
+        token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z0-9_-]{1,}\b",
+    )
+
+
+def topic_vocabulary_size(texts: Sequence[str], config: TopicModelConfig) -> int:
+    """Read-only fit preflight using the detector's exact vectorizer settings."""
+
+    if not texts:
+        return 0
+    try:
+        return int(_vectorizer(config).fit_transform(texts).shape[1])
+    except ValueError:
+        return 0
+
+
 def _atomic_joblib(value: Any, path: Path) -> None:
     temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
     try:
@@ -49,18 +75,7 @@ def _fit_one(
     if len(usable) < config.n_components:
         raise ValueError(f"{modality} has only {len(usable)} usable documents for {config.n_components} components")
     texts = [row[text_field] for row in usable]
-    vectorizer = TfidfVectorizer(
-        lowercase=True,
-        strip_accents="unicode",
-        stop_words="english",
-        ngram_range=(config.ngram_min, config.ngram_max),
-        min_df=config.min_df,
-        max_df=config.max_df,
-        max_features=config.max_features,
-        sublinear_tf=True,
-        norm="l2",
-        token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z0-9_-]{1,}\b",
-    )
+    vectorizer = _vectorizer(config)
     matrix = vectorizer.fit_transform(texts)
     if matrix.shape[1] < config.n_components:
         raise ValueError(f"{modality} vocabulary has only {matrix.shape[1]} features")

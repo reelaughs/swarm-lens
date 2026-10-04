@@ -3,14 +3,17 @@ Name: swarm-lens
 Version: 0.1.0
 Summary: Restartable ingestion and validation for AI Village research episodes
 Requires-Python: >=3.11
+Requires-Dist: fastapi<1,>=0.115
 Requires-Dist: joblib<2,>=1.4
 Requires-Dist: matplotlib<4,>=3.9
 Requires-Dist: openai<3,>=2
 Requires-Dist: pydantic<3,>=2.10
 Requires-Dist: pyarrow<23,>=18
 Requires-Dist: python-dotenv<2,>=1.0
+Requires-Dist: python-multipart<1,>=0.0.20
 Requires-Dist: scikit-learn<2,>=1.6
 Requires-Dist: scipy<2,>=1.14
 Requires-Dist: tzdata>=2025.2
+Requires-Dist: uvicorn<1,>=0.34
 Provides-Extra: dev
 Requires-Dist: pytest<10,>=8; extra == "dev"
