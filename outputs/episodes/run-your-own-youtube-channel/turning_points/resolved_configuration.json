@@ -1,0 +1,48 @@
+{
+  "canonical_input_sha256": "a340601173442226777939661062fd0ad4c499b9fe88f00fd3bd67218695eb38",
+  "configuration": {
+    "communication_model": {
+      "max_df": 0.95,
+      "max_features": 5000,
+      "max_iter": 500,
+      "min_df": 2,
+      "n_components": 8,
+      "ngram_max": 2,
+      "ngram_min": 1,
+      "top_terms": 8
+    },
+    "detector": {
+      "action_type_min_events_per_window": 20,
+      "communication_min_documents_per_window": 10,
+      "intention_min_documents_per_window": 5,
+      "min_components_for_aggregate": 3,
+      "min_peak_separation_minutes": 120,
+      "min_valid_comparisons": 10,
+      "overall_min_distinct_agents": 3,
+      "overall_min_high_level_events": 20,
+      "participation_min_agent_events_per_window": 20,
+      "participation_min_distinct_agents": 3,
+      "random_seed": 42,
+      "top_changes": 5,
+      "top_k": 5,
+      "window_sizes_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    "intention_model": {
+      "max_df": 0.95,
+      "max_features": 5000,
+      "max_iter": 500,
+      "min_df": 2,
+      "n_components": 8,
+      "ngram_max": 2,
+      "ngram_min": 1,
+      "top_terms": 8
+    }
+  },
+  "configuration_sha256": "172e24df5adeb504a70d263632e34ef8491f07f48aeca2da7f27511074a930fe",
+  "min_peak_separation_steps_at_recommended_size": 4,
+  "recommended_window_minutes": 30
+}

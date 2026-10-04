@@ -33,3 +33,35 @@ outputs/episodes/<safe-goal-slug>/ingestion_validation.md
 The goal text and timestamps are always resolved from
 `data/raw/village_goals.jsonl.gz`; the command contains no episode-specific
 timestamps or ingestion branches.
+
+## Stage 2: population-level turning points
+
+Stage 2 reads but never modifies a canonical episode dataset. Its parameters
+are centralized in `configs/turning_points.toml`.
+
+```powershell
+.\.venv\Scripts\python.exe scripts/detect_turning_points.py `
+  --episode run-your-own-youtube-channel
+```
+
+Fitted TF-IDF/NMF models and derived window features are cached under
+`data/interim/episodes/<episode>/turning_points/`. Reports, tables, evidence
+IDs, and diagnostic plots are written under
+`outputs/episodes/<episode>/turning_points/`.
+
+Export context packets for manual adjudication without rerunning the detector:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/export_candidate_context.py `
+  --episode run-your-own-youtube-channel `
+  --before-minutes 90 `
+  --after-minutes 90
+```
+
+Build the compact deterministic orientation briefs from those full packets and
+the cached NMF document weights:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/export_candidate_brief.py `
+  --episode run-your-own-youtube-channel
+```

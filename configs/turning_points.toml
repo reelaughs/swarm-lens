@@ -1,0 +1,37 @@
+[detector]
+# Profile all three resolutions. The recommendation rule selects the smallest
+# resolution with at least min_valid_comparisons aggregate scores.
+window_sizes_minutes = [30, 60, 90]
+overall_min_high_level_events = 20
+overall_min_distinct_agents = 3
+communication_min_documents_per_window = 10
+intention_min_documents_per_window = 5
+participation_min_agent_events_per_window = 20
+participation_min_distinct_agents = 3
+action_type_min_events_per_window = 20
+min_components_for_aggregate = 3
+min_valid_comparisons = 10
+min_peak_separation_minutes = 120
+top_k = 5
+top_changes = 5
+random_seed = 42
+
+[communication_model]
+n_components = 8
+min_df = 2
+max_df = 0.95
+max_features = 5000
+ngram_min = 1
+ngram_max = 2
+top_terms = 8
+max_iter = 500
+
+[intention_model]
+n_components = 8
+min_df = 2
+max_df = 0.95
+max_features = 5000
+ngram_min = 1
+ngram_max = 2
+top_terms = 8
+max_iter = 500

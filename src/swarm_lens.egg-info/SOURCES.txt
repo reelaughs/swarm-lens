@@ -8,5 +8,14 @@ src/swarm_lens.egg-info/SOURCES.txt
 src/swarm_lens.egg-info/dependency_links.txt
 src/swarm_lens.egg-info/requires.txt
 src/swarm_lens.egg-info/top_level.txt
+src/swarm_lens/turning_points/__init__.py
+src/swarm_lens/turning_points/config.py
+src/swarm_lens/turning_points/distributions.py
+src/swarm_lens/turning_points/pipeline.py
+src/swarm_lens/turning_points/reporting.py
+src/swarm_lens/turning_points/scoring.py
+src/swarm_lens/turning_points/topics.py
+src/swarm_lens/turning_points/windowing.py
 tests/test_ingestion.py
+tests/test_turning_points.py
 tests/test_validation.py
