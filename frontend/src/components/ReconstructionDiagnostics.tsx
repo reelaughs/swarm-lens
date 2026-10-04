@@ -1,4 +1,8 @@
 import type { TurningPoint } from "../data/types";
+import {
+  investigatorStructure,
+  investigatorText,
+} from "../lib/presentationLanguage";
 
 export function ReconstructionDiagnostics({ point }: { point: TurningPoint }) {
   return (
@@ -26,18 +30,18 @@ export function ReconstructionDiagnostics({ point }: { point: TurningPoint }) {
           <div>
             <h3>Null findings</h3>
             {point.reconstruction.nullFindings.length ? (
-              <ul>{point.reconstruction.nullFindings.map((value) => <li key={value}>{value}</li>)}</ul>
+              <ul>{point.reconstruction.nullFindings.map((value) => <li key={value}>{investigatorText(value)}</li>)}</ul>
             ) : <p>None recorded.</p>}
           </div>
           <div>
             <h3>Caveats</h3>
-            <ul>{point.reconstruction.caveats.map((value) => <li key={value}>{value}</li>)}</ul>
+            <ul>{point.reconstruction.caveats.map((value) => <li key={value}>{investigatorText(value)}</li>)}</ul>
           </div>
         </div>
         <details className="raw-structure">
           <summary>Structural observations</summary>
           <p className="method-note">Same-window co-activity is activity-density context, not relational evidence.</p>
-          <pre>{JSON.stringify(point.reconstruction.structuralObservations, null, 2)}</pre>
+          <pre>{JSON.stringify(investigatorStructure(point.reconstruction.structuralObservations), null, 2)}</pre>
         </details>
       </div>
     </details>

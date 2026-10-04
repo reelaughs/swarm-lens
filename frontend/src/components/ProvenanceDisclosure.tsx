@@ -1,4 +1,9 @@
 import type { ReferencedEvidence } from "../data/types";
+import {
+  evidenceKindLabel,
+  investigatorText,
+  publicProvenance,
+} from "../lib/presentationLanguage";
 
 export function ProvenanceDisclosure({ evidence }: { evidence: ReferencedEvidence[] }) {
   return (
@@ -12,12 +17,12 @@ export function ProvenanceDisclosure({ evidence }: { evidence: ReferencedEvidenc
           <details className="provenance-item" key={item.evidenceId}>
             <summary>
               <code>{item.evidenceId}</code>
-              <span>{String(item.record.evidence_kind ?? "evidence")}</span>
+              <span>{evidenceKindLabel(item.record.evidence_kind)}</span>
             </summary>
             <div className="provenance-body">
               {item.record.text ? <p>{String(item.record.text)}</p> : null}
-              {item.record.description ? <p>{String(item.record.description)}</p> : null}
-              <pre>{JSON.stringify(item.provenance, null, 2)}</pre>
+              {item.record.description ? <p>{investigatorText(String(item.record.description))}</p> : null}
+              <pre>{JSON.stringify(publicProvenance(item.provenance), null, 2)}</pre>
             </div>
           </details>
         ))}

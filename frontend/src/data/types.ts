@@ -148,6 +148,15 @@ export interface ReferencedEvidence {
   provenance: Record<string, unknown>;
 }
 
+export interface ExternalContextEvent {
+  type: string;
+  description: string;
+  time_or_date: string;
+  precision: string;
+  provenance: string | null;
+  minutes_from_boundary: number | null;
+}
+
 export interface TurningPoint {
   rank: number;
   comparisonId: string;
@@ -164,7 +173,7 @@ export interface TurningPoint {
     after: ActivitySide;
   };
   contextFlags: string[];
-  externalContextEvents: unknown[];
+  externalContextEvents: ExternalContextEvent[];
   compactEvidence: CompactEvidence[];
   reconstruction: {
     windows: Record<string, unknown>;

@@ -606,7 +606,7 @@ def build_view_model(
             "label": PRESENTATION_LABEL,
             "scope": (
                 f"Frozen episode investigation for {goal_text}; "
-                f"{len(candidates)} Stage 2 behavioral-change candidates."
+                f"{len(candidates)} ranked behavioral-change candidates."
             ),
             "methodologicalGuardrails": [
                 "Behavioral-change rank is not importance rank.",
@@ -615,7 +615,7 @@ def build_view_model(
                 "A possible social process is not a cause.",
                 "Evidence diversity is separate from confidence.",
                 "Missing evidence is unknown, not contradiction.",
-                "Frozen Stage 2 ordering is preserved; no LLM reranking is performed.",
+                "Frozen behavioral-change ordering is preserved; no LLM reranking is performed.",
             ],
         },
         "episode": {

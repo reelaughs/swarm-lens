@@ -62,10 +62,12 @@ describe("frozen episode view model", () => {
     );
   });
 
-  it("rejects non-contiguous or out-of-order Stage 2 ranks", () => {
+  it("rejects non-contiguous or out-of-order behavioral-change ranks", () => {
     const data = structuredClone(fixture());
     data.turningPoints[1].rank = 3;
-    expect(() => validateEpisode(data)).toThrow(/unique, contiguous positive integers in ascending order/);
+    expect(() => validateEpisode(data)).toThrow(
+      /Behavioral-change ranks must be unique, contiguous positive integers in ascending order/,
+    );
   });
 
   it("rejects duplicate catalog slugs", () => {

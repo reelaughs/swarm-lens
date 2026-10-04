@@ -2,7 +2,7 @@
   "viewModelVersion": "1.0",
   "presentation": {
     "label": "Frozen pipeline",
-    "scope": "Frozen episode investigation for Connect your worlds into a 3D universe!; 5 Stage 2 behavioral-change candidates.",
+    "scope": "Frozen episode investigation for Connect your worlds into a 3D universe!; 5 ranked behavioral-change candidates.",
     "methodologicalGuardrails": [
       "Behavioral-change rank is not importance rank.",
       "Detector transition magnitude is not interpretation confidence.",
@@ -10,7 +10,7 @@
       "A possible social process is not a cause.",
       "Evidence diversity is separate from confidence.",
       "Missing evidence is unknown, not contradiction.",
-      "Frozen Stage 2 ordering is preserved; no LLM reranking is performed."
+      "Frozen behavioral-change ordering is preserved; no LLM reranking is performed."
     ]
   },
   "episode": {

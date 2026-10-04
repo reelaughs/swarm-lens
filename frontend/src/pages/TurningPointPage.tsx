@@ -1,12 +1,14 @@
 import { EvidenceSequence } from "../components/EvidenceSequence";
 import { DetectorShifts, HOW_TO_READ_SIGNALS } from "../components/DetectorShifts";
 import { InfoPopover } from "../components/InfoPopover";
+import { NearbyContext } from "../components/NearbyContext";
 import { ProvenanceDisclosure } from "../components/ProvenanceDisclosure";
 import { ReconstructionDiagnostics } from "../components/ReconstructionDiagnostics";
 import { SignalCards } from "../components/SignalCards";
 import { SocialProcessPanel } from "../components/SocialProcessPanel";
 import type { EpisodeViewModel, TurningPoint } from "../data/types";
 import { utcDateTime } from "../lib/format";
+import { investigatorText } from "../lib/presentationLanguage";
 
 interface Props {
   data: EpisodeViewModel;
@@ -70,10 +72,12 @@ export function TurningPointPage({ data, point, onBack }: Props) {
             </div>
           </section>
 
+          <NearbyContext point={point} />
+
           <section className="detail-section evidence-section">
             <div className="section-heading-row">
               <div className="section-label">02 · Evidence sequence</div>
-              <span>Stage 2.5 compact brief · detector boundary</span>
+              <span>Evidence brief · detector boundary</span>
             </div>
             <EvidenceSequence evidence={point.compactEvidence} boundary={point.timestamp} />
           </section>
@@ -84,7 +88,7 @@ export function TurningPointPage({ data, point, onBack }: Props) {
         <aside className="investigation-aside">
           <section className="analyst-panel">
             <div className="section-label">03 · Analyst interpretation</div>
-            <p className="analyst-lede">{point.interpretation.analystNote.summary}</p>
+            <p className="analyst-lede">{investigatorText(point.interpretation.analystNote.summary)}</p>
             <p className="causal-warning">
               This describes the evidence neighborhood around the detected transition. It does not establish what caused the population-level change.
             </p>
@@ -93,14 +97,15 @@ export function TurningPointPage({ data, point, onBack }: Props) {
           <ProvenanceDisclosure evidence={point.referencedEvidence} />
           <details className="disclosure source-disclosure">
             <summary>
-              <span>Frozen source artifacts</span>
+              <span>Source provenance</span>
               <span aria-hidden="true" className="disclosure-icon">+</span>
             </summary>
             <div className="source-list">
-              {Object.entries(point.sourcePaths).map(([label, path]) => (
-                <div key={label}><strong>{label}</strong><code>{path}</code></div>
-              ))}
-              <div><strong>Episode</strong><code>{data.episode.goalId}</code></div>
+              <div><strong>Behavioral-change detection</strong><span>Frozen detector candidate</span></div>
+              <div><strong>Evidence brief</strong><span>Compact source-linked context</span></div>
+              <div><strong>Evidence reconstruction</strong><span>Ranked preceding evidence and diagnostics</span></div>
+              <div><strong>Analyst interpretation</strong><span>Bounded interpretation with cited evidence</span></div>
+              <div><strong>Episode ID</strong><code>{data.episode.goalId}</code></div>
             </div>
           </details>
         </aside>

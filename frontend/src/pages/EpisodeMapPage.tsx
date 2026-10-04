@@ -5,6 +5,7 @@ import { InfoPopover } from "../components/InfoPopover";
 import { SignalCards } from "../components/SignalCards";
 import type { EpisodeViewModel } from "../data/types";
 import { titleCase, utcDate, utcDateTime } from "../lib/format";
+import { investigatorText } from "../lib/presentationLanguage";
 
 interface Props {
   data: EpisodeViewModel;
@@ -68,7 +69,7 @@ export function EpisodeMapPage({ data, onInvestigate }: Props) {
             </div>
             <div>
               <div className="section-label">Analyst interpretation</div>
-              <p className="analyst-copy">{point.interpretation.analystNote.summary}</p>
+              <p className="analyst-copy">{investigatorText(point.interpretation.analystNote.summary)}</p>
               <p className="method-note">Interpretation of the evidence neighborhood, not a causal explanation.</p>
             </div>
           </div>

@@ -75,7 +75,7 @@ export function validateEpisode(
   const ranks = candidate.turningPoints.map((item) => item.rank);
   const ranksAreValid = ranks.every((rank, index) => Number.isInteger(rank) && rank === index + 1);
   if (!ranksAreValid || new Set(ranks).size !== ranks.length) {
-    throw new Error("Stage 2 ranks must be unique, contiguous positive integers in ascending order.");
+    throw new Error("Behavioral-change ranks must be unique, contiguous positive integers in ascending order.");
   }
 
   if (expected) {
