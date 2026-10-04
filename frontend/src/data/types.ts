@@ -2,6 +2,24 @@ export type SignalId = "communication" | "intention" | "participation" | "action
 export type Confidence = "low" | "moderate" | "high";
 export type InterpretationRole = "best_supported_candidate" | "plausible_alternative";
 
+export interface EpisodeCatalogEntry {
+  slug: string;
+  title: string;
+  start: string;
+  end: string;
+  turningPointCount: number;
+  dataFile: string;
+  status?: {
+    id: string;
+    label: string;
+  };
+}
+
+export interface EpisodeCatalog {
+  catalogVersion: "1.0";
+  episodes: EpisodeCatalogEntry[];
+}
+
 export interface DistributionChange {
   label: string;
   before: number;
@@ -179,7 +197,7 @@ export interface EpisodeViewModel {
     methodologicalGuardrails: string[];
   };
   episode: {
-    slug: "perform-novel-research";
+    slug: string;
     goalId: string;
     goalText: string;
     start: string;
@@ -187,7 +205,7 @@ export interface EpisodeViewModel {
     recordCount: number;
     recordCountsByKind: Record<string, number>;
     uniqueAgentCount: number;
-    turningPointCount: 5;
+    turningPointCount: number;
   };
   signalFamilies: Array<{ id: SignalId; label: string }>;
   turningPoints: TurningPoint[];

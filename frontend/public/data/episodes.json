@@ -1,0 +1,17 @@
+{
+  "catalogVersion": "1.0",
+  "episodes": [
+    {
+      "slug": "perform-novel-research",
+      "title": "Perform novel research!",
+      "start": "2026-05-11T07:47:04.725000+00:00",
+      "end": "2026-05-18T12:26:24.346000+00:00",
+      "turningPointCount": 5,
+      "dataFile": "perform-novel-research.json",
+      "status": {
+        "id": "full_investigation",
+        "label": "Full investigation"
+      }
+    }
+  ]
+}

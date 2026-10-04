@@ -86,14 +86,16 @@ def test_output_is_deterministic(tmp_path: Path) -> None:
     assert first.read_bytes() == second.read_bytes()
 
 
-def test_schema_describes_the_frozen_mvp_contract() -> None:
+def test_schema_describes_the_reusable_frozen_episode_contract() -> None:
     schema = json.loads(
         (ROOT / "schemas" / "frontend_episode_view_model.schema.json").read_text(
             encoding="utf-8"
         )
     )
     assert schema["properties"]["viewModelVersion"]["const"] == "1.0"
-    assert schema["properties"]["turningPoints"]["minItems"] == 5
-    assert schema["properties"]["turningPoints"]["maxItems"] == 5
+    assert schema["properties"]["turningPoints"]["minItems"] == 1
+    assert "maxItems" not in schema["properties"]["turningPoints"]
+    assert schema["$defs"]["episode"]["properties"]["slug"]["pattern"]
+    assert schema["$defs"]["episode"]["properties"]["turningPointCount"]["minimum"] == 1
     required = set(schema["$defs"]["turningPoint"]["required"])
     assert {"rank", "signals", "deterministicDescriptions", "interpretation"} <= required

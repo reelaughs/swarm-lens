@@ -1,13 +1,21 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { validateEpisode } from "./loadEpisode";
-import type { EpisodeViewModel } from "./types";
+import { validateEpisode, validateEpisodeCatalog } from "./loadEpisode";
+import type { EpisodeCatalog, EpisodeViewModel } from "./types";
+
+function catalogFixture(): EpisodeCatalog {
+  const path = resolve(process.cwd(), "public/data/episodes.json");
+  const value: unknown = JSON.parse(readFileSync(path, "utf8"));
+  validateEpisodeCatalog(value);
+  return value;
+}
 
 function fixture(): EpisodeViewModel {
   const path = resolve(process.cwd(), "public/data/perform-novel-research.json");
   const value: unknown = JSON.parse(readFileSync(path, "utf8"));
-  validateEpisode(value);
+  const entry = catalogFixture().episodes[0];
+  validateEpisode(value, entry);
   return value;
 }
 
@@ -37,5 +45,32 @@ describe("frozen episode view model", () => {
       expect(point.referencedEvidence.every((item) => Boolean(item.evidenceId))).toBe(true);
       expect(point.referencedEvidence.every((item) => Boolean(item.provenance))).toBe(true);
     }
+  });
+
+  it("cross-checks catalog metadata against the generated view model", () => {
+    const data = fixture();
+    const entry = {
+      ...catalogFixture().episodes[0],
+      slug: "different-episode",
+      title: "Mismatched title",
+      start: "2026-01-01T00:00:00.000000+00:00",
+      end: "2026-01-02T00:00:00.000000+00:00",
+      turningPointCount: 4,
+    };
+    expect(() => validateEpisode(data, entry)).toThrow(
+      /Catalog\/view-model mismatch.*slug.*title.*start timestamp.*end timestamp.*turning-point count/,
+    );
+  });
+
+  it("rejects non-contiguous or out-of-order Stage 2 ranks", () => {
+    const data = structuredClone(fixture());
+    data.turningPoints[1].rank = 3;
+    expect(() => validateEpisode(data)).toThrow(/unique, contiguous positive integers in ascending order/);
+  });
+
+  it("rejects duplicate catalog slugs", () => {
+    const catalog = catalogFixture();
+    const duplicate = { ...catalog, episodes: [...catalog.episodes, { ...catalog.episodes[0] }] };
+    expect(() => validateEpisodeCatalog(duplicate)).toThrow(/duplicate slug/);
   });
 });

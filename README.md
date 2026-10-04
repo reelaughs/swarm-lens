@@ -84,6 +84,12 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173/episodes/perform-novel-research`. The frontend
-does not read the evaluation packet and does not perform runtime analysis,
-reranking, or LLM calls.
+Open `http://localhost:5173/` for the investigation launcher, or navigate
+directly to `http://localhost:5173/episodes/perform-novel-research`. The
+frontend reads its lightweight episode catalog first and loads registered
+generated presentation JSON on demand. It does not read the evaluation packet
+and does not perform runtime analysis, reranking, or LLM calls.
+
+The frontend uses History API routes. Production hosting must rewrite unknown
+application paths to `index.html` (SPA fallback) so direct episode and
+turning-point URLs continue to work after deployment.

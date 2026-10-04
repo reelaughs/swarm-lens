@@ -37,8 +37,7 @@
     },
     "turningPoints": {
       "type": "array",
-      "minItems": 5,
-      "maxItems": 5,
+      "minItems": 1,
       "items": {"$ref": "#/$defs/turningPoint"}
     },
     "sourceIdentity": {"type": "object", "minProperties": 10}
@@ -59,9 +58,12 @@
         "turningPointCount"
       ],
       "properties": {
-        "slug": {"const": "perform-novel-research"},
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
         "goalId": {"type": "string", "minLength": 1},
-        "goalText": {"const": "Perform novel research!"},
+        "goalText": {"type": "string", "minLength": 1},
         "start": {"type": "string", "format": "date-time"},
         "end": {"type": "string", "format": "date-time"},
         "recordCount": {"type": "integer", "minimum": 1},
@@ -70,7 +72,7 @@
           "additionalProperties": {"type": "integer", "minimum": 0}
         },
         "uniqueAgentCount": {"type": "integer", "minimum": 1},
-        "turningPointCount": {"const": 5}
+        "turningPointCount": {"type": "integer", "minimum": 1}
       }
     },
     "signalFamily": {
@@ -161,7 +163,7 @@
         "sourcePaths"
       ],
       "properties": {
-        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "rank": {"type": "integer", "minimum": 1},
         "comparisonId": {"type": "string", "minLength": 1},
         "timestamp": {"type": "string", "format": "date-time"},
         "timelinePositionPercent": {"type": "number", "minimum": 0, "maximum": 100},
