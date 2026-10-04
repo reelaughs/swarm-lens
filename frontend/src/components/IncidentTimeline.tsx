@@ -25,6 +25,24 @@ interface MarkerDisplacement {
   y: number;
 }
 
+function leaderGeometry(displacement: MarkerDisplacement) {
+  const padding = 1;
+  const left = Math.min(0, displacement.x) - padding;
+  const top = Math.min(0, displacement.y) - padding;
+  const width = Math.abs(displacement.x) + padding * 2;
+  const height = Math.abs(displacement.y) + padding * 2;
+  return {
+    left,
+    top,
+    width,
+    height,
+    x1: -left,
+    y1: -top,
+    x2: displacement.x - left,
+    y2: displacement.y - top,
+  };
+}
+
 function collisionDisplacements(points: TurningPoint[]): Map<number, MarkerDisplacement> {
   const sorted = [...points].sort((left, right) => left.timelinePositionPercent - right.timelinePositionPercent);
   const groups: TurningPoint[][] = [];
@@ -67,6 +85,7 @@ export function IncidentTimeline({ episode, points, selectedRank, onSelect }: Pr
           const selected = point.rank === selectedRank;
           const displacement = displacements.get(point.rank) ?? { x: 0, y: 0 };
           const displaced = displacement.x !== 0 || displacement.y !== 0;
+          const leader = displaced ? leaderGeometry(displacement) : null;
           return (
             <span
               className="timeline-anchor"
@@ -74,13 +93,20 @@ export function IncidentTimeline({ episode, points, selectedRank, onSelect }: Pr
               style={{ left: `${point.timelinePositionPercent}%` }}
             >
               <span className="timeline-tick" aria-hidden="true" />
-              {displaced && (
-                <svg className="timeline-leader" width="1" height="1" aria-hidden="true">
-                  <line x1="0" y1="0" x2={displacement.x} y2={displacement.y} />
+              {leader && (
+                <svg
+                  className="timeline-leader"
+                  width={leader.width}
+                  height={leader.height}
+                  viewBox={`0 0 ${leader.width} ${leader.height}`}
+                  style={{ left: `${leader.left}px`, top: `${leader.top}px` }}
+                  aria-hidden="true"
+                >
+                  <line x1={leader.x1} y1={leader.y1} x2={leader.x2} y2={leader.y2} />
                 </svg>
               )}
               <button
-                className={`timeline-marker ${selected ? "timeline-marker--selected" : ""}`}
+                className={`timeline-marker ${displacement.x < 0 ? "timeline-marker--label-left" : ""} ${selected ? "timeline-marker--selected" : ""}`}
                 style={{ left: `${displacement.x}px`, top: `${displacement.y}px` }}
                 onClick={() => onSelect(point.rank)}
                 aria-pressed={selected}
