@@ -1,0 +1,25 @@
+manifest_version = "1.0"
+
+[episodes."perform-novel-research"]
+slug = "perform-novel-research"
+expected_goal = "Perform novel research!"
+candidate_ranks = [1, 2, 3, 4, 5]
+
+[episodes."perform-novel-research".stage4_cache_keys]
+"1" = "6d50d54e63018955ebd93fc1"
+"2" = "625641230f110578e7d1314b"
+"3" = "3ebf55addfb880066a3e19c9"
+"4" = "679a792ad7284b2278aae8a5"
+"5" = "02e3cf794218704efcfc478c"
+
+[episodes."connect-your-worlds-into-a-3d-universe"]
+slug = "connect-your-worlds-into-a-3d-universe"
+expected_goal = "Connect your worlds into a 3D universe!"
+candidate_ranks = [1, 2, 3, 4, 5]
+
+[episodes."connect-your-worlds-into-a-3d-universe".stage4_cache_keys]
+"1" = "a7440bb26755c833f9e8ae9c"
+"2" = "c510c0e37c61f4bd192ab183"
+"3" = "3b024d33b29fb19e6e6726f6"
+"4" = "20047a5fe0c26ba78a1217e4"
+"5" = "1ba38242ae6ccb287056e6ce"

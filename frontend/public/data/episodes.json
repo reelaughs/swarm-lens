@@ -12,6 +12,18 @@
         "id": "full_investigation",
         "label": "Full investigation"
       }
+    },
+    {
+      "slug": "connect-your-worlds-into-a-3d-universe",
+      "title": "Connect your worlds into a 3D universe!",
+      "start": "2026-05-04T16:03:38.616000+00:00",
+      "end": "2026-05-11T07:47:04.725000+00:00",
+      "turningPointCount": 5,
+      "dataFile": "connect-your-worlds-into-a-3d-universe.json",
+      "status": {
+        "id": "full_investigation",
+        "label": "Full investigation"
+      }
     }
   ]
 }

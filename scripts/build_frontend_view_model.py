@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import sys
+import tomllib
 from collections import Counter
 from copy import deepcopy
 from datetime import datetime
@@ -30,17 +31,9 @@ from swarm_lens.interpretation.hypotheses import load_hypothesis_library  # noqa
 from swarm_lens.interpretation.schemas import ModelInterpretation, response_json_schema  # noqa: E402
 
 
-EPISODE_SLUG = "perform-novel-research"
-EPISODE_GOAL = "Perform novel research!"
 VIEW_MODEL_VERSION = "1.0"
 PRESENTATION_LABEL = "Frozen pipeline"
-STAGE4_CACHE_KEYS = {
-    1: "6d50d54e63018955ebd93fc1",
-    2: "625641230f110578e7d1314b",
-    3: "3ebf55addfb880066a3e19c9",
-    4: "679a792ad7284b2278aae8a5",
-    5: "02e3cf794218704efcfc478c",
-}
+DEFAULT_ARTIFACT_MANIFEST = ROOT / "configs" / "frontend_episode_artifacts.toml"
 SIGNALS = (
     ("communication", "Communication"),
     ("intention", "Intention"),
@@ -52,6 +45,42 @@ SIGNALS = (
 def _read_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def _load_episode_artifacts(manifest_path: Path, episode_slug: str) -> dict[str, Any]:
+    with manifest_path.open("rb") as handle:
+        manifest = tomllib.load(handle)
+    if manifest.get("manifest_version") != "1.0":
+        raise ValueError("Unsupported frontend artifact-manifest version")
+    episodes = manifest.get("episodes", {})
+    if episode_slug not in episodes:
+        raise ValueError(f"Episode {episode_slug!r} is not pinned in {manifest_path}")
+    episode = episodes[episode_slug]
+    if episode.get("slug") != episode_slug:
+        raise ValueError(f"Episode manifest slug mismatch for {episode_slug!r}")
+    expected_goal = episode.get("expected_goal")
+    if not isinstance(expected_goal, str) or not expected_goal:
+        raise ValueError(f"Episode {episode_slug!r} lacks an expected goal")
+    ranks = episode.get("candidate_ranks")
+    if (
+        not isinstance(ranks, list)
+        or not ranks
+        or ranks != list(range(1, len(ranks) + 1))
+        or any(not isinstance(rank, int) for rank in ranks)
+    ):
+        raise ValueError(f"Episode {episode_slug!r} ranks must be contiguous positive integers")
+    raw_keys = episode.get("stage4_cache_keys", {})
+    cache_keys = {int(rank): value for rank, value in raw_keys.items()}
+    if sorted(cache_keys) != ranks or any(
+        not isinstance(value, str) or len(value) != 24 for value in cache_keys.values()
+    ):
+        raise ValueError(f"Episode {episode_slug!r} has an invalid Stage 4 cache manifest")
+    return {
+        "slug": episode_slug,
+        "expected_goal": expected_goal,
+        "candidate_ranks": ranks,
+        "stage4_cache_keys": cache_keys,
+    }
 
 
 def _sha256(path: Path) -> str:
@@ -172,14 +201,16 @@ def _component_changes(row: dict[str, Any], key: str) -> Any:
     return json.loads(value) if isinstance(value, str) else value
 
 
-def _stage4_paths(root: Path, rank: int) -> dict[str, Path]:
-    cache_key = STAGE4_CACHE_KEYS[rank]
+def _stage4_paths(
+    root: Path, episode_slug: str, cache_keys: dict[int, str], rank: int
+) -> dict[str, Path]:
+    cache_key = cache_keys[rank]
     base = (
         root
         / "data"
         / "interim"
         / "episodes"
-        / EPISODE_SLUG
+        / episode_slug
         / "interpretation"
         / cache_key
         / f"candidate_{rank}"
@@ -194,6 +225,8 @@ def _stage4_paths(root: Path, rank: int) -> dict[str, Path]:
 def _validate_stage4(
     *,
     root: Path,
+    episode_slug: str,
+    cache_keys: dict[int, str],
     rank: int,
     stage3_hash: str,
     library_fingerprint: str,
@@ -202,7 +235,7 @@ def _validate_stage4(
     system_prompt_hash: str,
     developer_prompt_hash: str,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Path]]:
-    paths = _stage4_paths(root, rank)
+    paths = _stage4_paths(root, episode_slug, cache_keys, rank)
     missing = [str(path) for path in paths.values() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Candidate {rank} frozen Stage 4 artifact missing: {missing}")
@@ -224,9 +257,9 @@ def _validate_stage4(
     if disagreements:
         raise ValueError(f"Candidate {rank} Stage 4 identity mismatch: {disagreements}")
     calculated_key = hashlib.sha256(canonical_json(identity).encode("utf-8")).hexdigest()[:24]
-    if calculated_key != STAGE4_CACHE_KEYS[rank]:
+    if calculated_key != cache_keys[rank]:
         raise ValueError(
-            f"Candidate {rank} cache key mismatch: expected {STAGE4_CACHE_KEYS[rank]}, calculated {calculated_key}"
+            f"Candidate {rank} cache key mismatch: expected {cache_keys[rank]}, calculated {calculated_key}"
         )
 
     bundle = _read_json(paths["bundle"])
@@ -283,21 +316,30 @@ def _validate_stage4(
     return validated, interpretation, {"references": referenced}, paths
 
 
-def build_view_model(root: Path = ROOT) -> dict[str, Any]:
+def build_view_model(
+    root: Path,
+    episode_slug: str,
+    manifest_path: Path = DEFAULT_ARTIFACT_MANIFEST,
+) -> dict[str, Any]:
     root = root.resolve()
-    canonical_path = root / "data" / "processed" / "episodes" / EPISODE_SLUG / "events.parquet"
+    manifest_path = manifest_path.resolve()
+    episode_artifacts = _load_episode_artifacts(manifest_path, episode_slug)
+    expected_goal = episode_artifacts["expected_goal"]
+    expected_ranks = episode_artifacts["candidate_ranks"]
+    cache_keys = episode_artifacts["stage4_cache_keys"]
+    canonical_path = root / "data" / "processed" / "episodes" / episode_slug / "events.parquet"
     stage2_candidates_path = (
-        root / "outputs" / "episodes" / EPISODE_SLUG / "turning_points" / "top_candidates.parquet"
+        root / "outputs" / "episodes" / episode_slug / "turning_points" / "top_candidates.parquet"
     )
     stage2_config_path = (
-        root / "outputs" / "episodes" / EPISODE_SLUG / "turning_points" / "resolved_configuration.json"
+        root / "outputs" / "episodes" / episode_slug / "turning_points" / "resolved_configuration.json"
     )
-    brief_path = root / "outputs" / "episodes" / EPISODE_SLUG / "turning_points" / "candidate_brief.json"
+    brief_path = root / "outputs" / "episodes" / episode_slug / "turning_points" / "candidate_brief.json"
     stage3_path = (
         root
         / "outputs"
         / "episodes"
-        / EPISODE_SLUG
+        / episode_slug
         / "turning_points"
         / "evidence_reconstruction"
         / "evidence_reconstruction.json"
@@ -318,6 +360,7 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
         system_prompt_path,
         developer_prompt_path,
         stage4_schema_path,
+        manifest_path,
     )
     missing = [str(path) for path in required if not path.exists()]
     if missing:
@@ -360,7 +403,7 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
     if len(episode_identity) != 1:
         raise ValueError("Canonical rows do not share one authoritative village-goal identity")
     goal_id, goal_text, goal_start, goal_end = next(iter(episode_identity))
-    if goal_text != EPISODE_GOAL:
+    if goal_text != expected_goal:
         raise ValueError(f"Wrong episode: {goal_text!r}")
 
     stage2_rows = sorted(
@@ -368,9 +411,8 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
     )
     brief_by_rank = {int(item["rank"]): item for item in brief["candidates"]}
     stage3_by_rank = {int(item["rank"]): item for item in stage3["candidates"]}
-    expected_ranks = list(STAGE4_CACHE_KEYS)
     if [int(item["rank"]) for item in stage2_rows] != expected_ranks:
-        raise ValueError("Stage 2 candidates are not frozen ranks 1-5")
+        raise ValueError(f"Stage 2 candidates do not match pinned ranks: {expected_ranks}")
     if sorted(brief_by_rank) != expected_ranks or sorted(stage3_by_rank) != expected_ranks:
         raise ValueError("Stage 2.5 or Stage 3 is missing a frozen rank")
 
@@ -403,7 +445,11 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
             "path": _relative(developer_prompt_path, root),
             "sha256": _hash_text(developer_prompt_path),
         },
-        "stage4CacheManifest": {str(rank): value for rank, value in STAGE4_CACHE_KEYS.items()},
+        "presentationArtifactManifest": {
+            "path": _relative(manifest_path, root),
+            "sha256": _sha256(manifest_path),
+        },
+        "stage4CacheManifest": {str(rank): value for rank, value in cache_keys.items()},
     }
 
     start_seconds = goal_start.timestamp()
@@ -415,6 +461,8 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
         stage3_candidate = stage3_by_rank[rank]
         validated, interpretation, stage4_evidence, stage4_paths = _validate_stage4(
             root=root,
+            episode_slug=episode_slug,
+            cache_keys=cache_keys,
             rank=rank,
             stage3_hash=stage3_hash,
             library_fingerprint=library.fingerprint,
@@ -556,7 +604,10 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
         "viewModelVersion": VIEW_MODEL_VERSION,
         "presentation": {
             "label": PRESENTATION_LABEL,
-            "scope": "Frozen Perform novel research! episode; five Stage 2 behavioral-change candidates.",
+            "scope": (
+                f"Frozen episode investigation for {goal_text}; "
+                f"{len(candidates)} Stage 2 behavioral-change candidates."
+            ),
             "methodologicalGuardrails": [
                 "Behavioral-change rank is not importance rank.",
                 "Detector transition magnitude is not interpretation confidence.",
@@ -568,7 +619,7 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
             ],
         },
         "episode": {
-            "slug": EPISODE_SLUG,
+            "slug": episode_slug,
             "goalId": goal_id,
             "goalText": goal_text,
             "start": goal_start.isoformat(),
@@ -586,17 +637,23 @@ def build_view_model(root: Path = ROOT) -> dict[str, Any]:
         "turningPoints": candidates,
         "sourceIdentity": source_identity,
     }
-    validate_view_model(view_model)
+    validate_view_model(
+        view_model,
+        expected_goal=expected_goal,
+        expected_ranks=expected_ranks,
+    )
     return _json_safe(view_model)
 
 
-def validate_view_model(value: dict[str, Any]) -> None:
+def validate_view_model(
+    value: dict[str, Any], *, expected_goal: str, expected_ranks: list[int]
+) -> None:
     if value.get("viewModelVersion") != VIEW_MODEL_VERSION:
         raise ValueError("Unexpected frontend view-model version")
-    if value["episode"]["goalText"] != EPISODE_GOAL:
+    if value["episode"]["goalText"] != expected_goal:
         raise ValueError("Unexpected frontend episode")
     ranks = [candidate["rank"] for candidate in value["turningPoints"]]
-    if ranks != list(STAGE4_CACHE_KEYS):
+    if ranks != expected_ranks:
         raise ValueError(f"Frontend candidates are not in frozen Stage 2 order: {ranks}")
     for candidate in value["turningPoints"]:
         if not candidate["deterministicDescriptions"]:
@@ -615,8 +672,13 @@ def validate_view_model(value: dict[str, Any]) -> None:
             raise ValueError(f"Candidate {candidate['rank']} evidence catalog is incomplete")
 
 
-def write_view_model(root: Path, output_path: Path) -> dict[str, Any]:
-    value = build_view_model(root)
+def write_view_model(
+    root: Path,
+    output_path: Path,
+    episode_slug: str,
+    manifest_path: Path = DEFAULT_ARTIFACT_MANIFEST,
+) -> dict[str, Any]:
+    value = build_view_model(root, episode_slug, manifest_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -627,14 +689,18 @@ def write_view_model(root: Path, output_path: Path) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=ROOT / "frontend" / "public" / "data" / f"{EPISODE_SLUG}.json",
-    )
+    parser.add_argument("--episode", required=True)
+    parser.add_argument("--artifact-manifest", type=Path, default=DEFAULT_ARTIFACT_MANIFEST)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    write_view_model(args.root.resolve(), args.output.resolve())
-    print(f"Validated and wrote {_relative(args.output.resolve(), args.root.resolve())}")
+    root = args.root.resolve()
+    output = (
+        args.output.resolve()
+        if args.output
+        else root / "frontend" / "public" / "data" / f"{args.episode}.json"
+    )
+    write_view_model(root, output, args.episode, args.artifact_manifest.resolve())
+    print(f"Validated and wrote {_relative(output, root)}")
 
 
 if __name__ == "__main__":

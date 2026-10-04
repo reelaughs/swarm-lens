@@ -2,7 +2,7 @@
   "viewModelVersion": "1.0",
   "presentation": {
     "label": "Frozen pipeline",
-    "scope": "Frozen Perform novel research! episode; five Stage 2 behavioral-change candidates.",
+    "scope": "Frozen episode investigation for Perform novel research!; 5 Stage 2 behavioral-change candidates.",
     "methodologicalGuardrails": [
       "Behavioral-change rank is not importance rank.",
       "Detector transition magnitude is not interpretation confidence.",
@@ -43591,6 +43591,10 @@
     "developerPrompt": {
       "path": "prompts/stage4_developer_v1.txt",
       "sha256": "b79cd526cd9c43cc07fdcde166c890546cbeaeb6afde97f9ed77f9aeea238f9d"
+    },
+    "presentationArtifactManifest": {
+      "path": "configs/frontend_episode_artifacts.toml",
+      "sha256": "81a667938c1c065a096346eecd0c9b78e6a16b2808cb918f4da1430a3292a3eb"
     },
     "stage4CacheManifest": {
       "1": "6d50d54e63018955ebd93fc1",
