@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "AlternativeExplanation": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"minLength": 1, "title": "Summary", "type": "string"},
+        "evidence_ids": {"items": {"type": "string"}, "title": "Evidence Ids", "type": "array"}
+      },
+      "required": ["summary", "evidence_ids"],
+      "title": "AlternativeExplanation",
+      "type": "object"
+    },
+    "AnalystNote": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"minLength": 1, "title": "Summary", "type": "string"},
+        "supporting_evidence_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Supporting Evidence Ids", "type": "array"}
+      },
+      "required": ["summary", "supporting_evidence_ids"],
+      "title": "AnalystNote",
+      "type": "object"
+    },
+    "ContradictedCounterSignature": {
+      "additionalProperties": false,
+      "properties": {
+        "counter_signature_id": {"title": "Counter Signature Id", "type": "string"},
+        "rationale": {"minLength": 1, "title": "Rationale", "type": "string"},
+        "evidence_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Evidence Ids", "type": "array"}
+      },
+      "required": ["counter_signature_id", "rationale", "evidence_ids"],
+      "title": "ContradictedCounterSignature",
+      "type": "object"
+    },
+    "EvidenceGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "group_id": {"minLength": 1, "title": "Group Id", "type": "string"},
+        "summary": {"minLength": 1, "title": "Summary", "type": "string"},
+        "evidence_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Evidence Ids", "type": "array"},
+        "supported_signature_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Supported Signature Ids", "type": "array"},
+        "independence_rationale": {"minLength": 1, "title": "Independence Rationale", "type": "string"},
+        "relational_evidence": {"title": "Relational Evidence", "type": "boolean"}
+      },
+      "required": ["group_id", "summary", "evidence_ids", "supported_signature_ids", "independence_rationale", "relational_evidence"],
+      "title": "EvidenceGroup",
+      "type": "object"
+    },
+    "InterpretiveStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "statement": {"minLength": 1, "title": "Statement", "type": "string"},
+        "supporting_evidence_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Supporting Evidence Ids", "type": "array"},
+        "uncertainty": {"minLength": 1, "title": "Uncertainty", "type": "string"}
+      },
+      "required": ["statement", "supporting_evidence_ids", "uncertainty"],
+      "title": "InterpretiveStatement",
+      "type": "object"
+    },
+    "ProposedHypothesis": {
+      "additionalProperties": false,
+      "properties": {
+        "hypothesis_id": {"title": "Hypothesis Id", "type": "string"},
+        "interpretation_role": {"enum": ["best_supported_candidate", "plausible_alternative"], "title": "Interpretation Role", "type": "string"},
+        "proposed_confidence": {"enum": ["low", "moderate", "high"], "title": "Proposed Confidence", "type": "string"},
+        "summary": {"minLength": 1, "title": "Summary", "type": "string"},
+        "supported_signatures": {"items": {"$ref": "#/$defs/SupportedSignature"}, "title": "Supported Signatures", "type": "array"},
+        "contradicted_counter_signatures": {"items": {"$ref": "#/$defs/ContradictedCounterSignature"}, "title": "Contradicted Counter Signatures", "type": "array"},
+        "unknown_signature_ids": {"items": {"type": "string"}, "title": "Unknown Signature Ids", "type": "array"},
+        "alternative_explanations": {"items": {"$ref": "#/$defs/AlternativeExplanation"}, "title": "Alternative Explanations", "type": "array"},
+        "caveats": {"items": {"type": "string"}, "title": "Caveats", "type": "array"},
+        "evidence_groups": {"items": {"$ref": "#/$defs/EvidenceGroup"}, "minItems": 1, "title": "Evidence Groups", "type": "array"}
+      },
+      "required": ["hypothesis_id", "interpretation_role", "proposed_confidence", "summary", "supported_signatures", "contradicted_counter_signatures", "unknown_signature_ids", "alternative_explanations", "caveats", "evidence_groups"],
+      "title": "ProposedHypothesis",
+      "type": "object"
+    },
+    "SocialProcessEvaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {"enum": ["candidate_hypotheses", "no_clear_social_process_match"], "title": "Result", "type": "string"},
+        "rationale": {"minLength": 1, "title": "Rationale", "type": "string"},
+        "supporting_evidence_ids": {"items": {"type": "string"}, "title": "Supporting Evidence Ids", "type": "array"},
+        "hypotheses": {"items": {"$ref": "#/$defs/ProposedHypothesis"}, "title": "Hypotheses", "type": "array"}
+      },
+      "required": ["result", "rationale", "supporting_evidence_ids", "hypotheses"],
+      "title": "SocialProcessEvaluation",
+      "type": "object"
+    },
+    "SupportedSignature": {
+      "additionalProperties": false,
+      "properties": {
+        "signature_id": {"title": "Signature Id", "type": "string"},
+        "rationale": {"minLength": 1, "title": "Rationale", "type": "string"},
+        "evidence_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Evidence Ids", "type": "array"}
+      },
+      "required": ["signature_id", "rationale", "evidence_ids"],
+      "title": "SupportedSignature",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "1.1", "title": "Schema Version", "type": "string"},
+    "analyst_note": {"$ref": "#/$defs/AnalystNote"},
+    "interpretive_statements": {"items": {"$ref": "#/$defs/InterpretiveStatement"}, "title": "Interpretive Statements", "type": "array"},
+    "social_process_evaluation": {"$ref": "#/$defs/SocialProcessEvaluation"}
+  },
+  "required": ["schema_version", "analyst_note", "interpretive_statements", "social_process_evaluation"],
+  "title": "ModelInterpretation",
+  "type": "object"
+}

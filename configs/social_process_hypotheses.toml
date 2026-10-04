@@ -1,0 +1,145 @@
+library_version = "0.2-demo"
+library_status = "extensible demonstration library; not a canonical taxonomy"
+
+[[hypotheses]]
+id = "information_diffusion"
+name = "Information cascade / diffusion"
+description = "Information, framing, or a work instruction appears in one actor's evidence and is subsequently taken up by other actors."
+required_signature_ids_for_high_confidence = ["cross_agent_semantic_uptake", "cross_agent_behavioral_follow_through"]
+context_only_confidence_cap = "low"
+
+[[hypotheses.signatures]]
+id = "cross_agent_semantic_uptake"
+description = "Similar substantive content appears later in records from one or more other agents."
+
+[[hypotheses.signatures]]
+id = "cross_agent_behavioral_follow_through"
+description = "Another agent's later session goal or high-level action observably follows the earlier information or instruction."
+
+[[hypotheses.signatures]]
+id = "explicit_relay_or_address"
+description = "A record explicitly relays information to, names, or addresses another agent."
+
+[[hypotheses.signatures]]
+id = "persistent_multi_agent_uptake"
+description = "The cross-agent pattern recurs across more than one eligible follow-up window."
+
+[[hypotheses.counter_signatures]]
+id = "isolated_same_agent_repetition"
+description = "Positive evidence shows that the apparent repetition is confined to the originating agent despite adequate observation."
+confidence_cap = "low"
+
+[[hypotheses]]
+id = "delegation_role_differentiation"
+name = "Delegation / role differentiation"
+description = "Work is explicitly assigned or differentiated across actors, with observable acknowledgement, execution, or persistent specialization."
+required_signature_ids_for_high_confidence = ["explicit_task_assignment", "recipient_acknowledgement_or_action"]
+context_only_confidence_cap = "low"
+
+[[hypotheses.signatures]]
+id = "explicit_task_assignment"
+description = "A record assigns a concrete task, role, or deliverable to a named or identifiable agent."
+
+[[hypotheses.signatures]]
+id = "recipient_acknowledgement_or_action"
+description = "The recipient explicitly acknowledges the assignment or produces an observable related action or intention."
+
+[[hypotheses.signatures]]
+id = "persistent_role_specialization"
+description = "Deterministic Stage 3 measurements show repeated specialization by an agent across eligible windows."
+
+[[hypotheses.signatures]]
+id = "complementary_task_differentiation"
+description = "Different agents perform observably complementary rather than identical tasks."
+
+[[hypotheses.counter_signatures]]
+id = "assignment_without_observable_response"
+description = "Adequately observed evidence positively shows that an explicit assignment received no acknowledgement or related action."
+confidence_cap = "moderate"
+
+[[hypotheses]]
+id = "subgroup_coalition_like_formation"
+name = "Subgroup / coalition-like formation"
+description = "A recurring subset of agents shows stronger within-subset coordination or shared work than is evidenced for the surrounding population."
+required_signature_ids_for_high_confidence = ["repeated_subset_structure", "explicit_within_subset_coordination"]
+context_only_confidence_cap = "low"
+
+[[hypotheses.signatures]]
+id = "repeated_subset_structure"
+description = "A particular subset recurs across windows with evidence beyond same-window co-activity alone."
+
+[[hypotheses.signatures]]
+id = "explicit_within_subset_coordination"
+description = "Members of the subset explicitly address, coordinate with, or respond to one another."
+
+[[hypotheses.signatures]]
+id = "shared_workstream_with_relational_evidence"
+description = "Subset members share a workstream and at least one stronger relational indicator such as explicit addressing or observable follow-through."
+
+[[hypotheses.signatures]]
+id = "same_room_recurrence_with_interaction"
+description = "Same-room recurrence is accompanied by explicit interaction evidence; location alone is insufficient."
+
+[[hypotheses.counter_signatures]]
+id = "population_wide_pattern"
+description = "Positive evidence shows that the pattern is broadly population-wide rather than subset-specific."
+confidence_cap = "moderate"
+
+[[hypotheses.cautions]]
+text = "Same-window co-activity has evidence_role=activity_density_context and relational_evidence=false. It cannot independently support this hypothesis."
+
+[[hypotheses]]
+id = "norm_formation"
+name = "Norm formation"
+description = "A behavioral expectation is articulated and observably adopted, reinforced, or enforced by multiple agents over time."
+required_signature_ids_for_high_confidence = ["explicit_norm_statement", "multi_agent_adoption", "persistent_reinforcement"]
+context_only_confidence_cap = "low"
+
+[[hypotheses.signatures]]
+id = "explicit_norm_statement"
+description = "A record states a general behavioral expectation, protocol, or rule rather than a one-off task."
+
+[[hypotheses.signatures]]
+id = "multi_agent_adoption"
+description = "Multiple agents observably adopt the stated expectation in their communication, intentions, or actions."
+
+[[hypotheses.signatures]]
+id = "persistent_reinforcement"
+description = "The expectation is repeated, reinforced, or followed across multiple eligible windows."
+
+[[hypotheses.signatures]]
+id = "correction_against_norm"
+description = "An agent corrects or reminds another agent with reference to the shared expectation."
+
+[[hypotheses.counter_signatures]]
+id = "one_off_instruction_only"
+description = "Positive evidence shows a single task-specific instruction with no broader adoption despite adequate observation."
+confidence_cap = "low"
+
+[[hypotheses]]
+id = "corrective_coordination"
+name = "Corrective coordination"
+description = "An actor corrects or redirects another actor or shared course of action, followed by an observable response or adjustment."
+required_signature_ids_for_high_confidence = ["explicit_correction_or_redirect", "target_response_or_revision"]
+context_only_confidence_cap = "low"
+
+[[hypotheses.signatures]]
+id = "explicit_correction_or_redirect"
+description = "A record explicitly corrects, warns about, or redirects another contribution or plan."
+
+[[hypotheses.signatures]]
+id = "target_response_or_revision"
+description = "The addressed actor acknowledges, revises, or acts in response to the correction."
+
+[[hypotheses.signatures]]
+id = "cross_agent_corrective_follow_through"
+description = "The correction is reflected in later intentions or actions by one or more agents."
+
+[[hypotheses.signatures]]
+id = "persistent_corrective_sequence"
+description = "The corrective exchange or adjustment continues across more than one eligible window."
+
+[[hypotheses.counter_signatures]]
+id = "unanswered_correction_with_adequate_observation"
+description = "Positive evidence shows that the correction was not acknowledged or followed despite adequate observation."
+confidence_cap = "moderate"

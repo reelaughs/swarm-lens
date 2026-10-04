@@ -1,0 +1,21 @@
+Return exactly the requested strict JSON schema.
+
+For the analyst note, write one compact paragraph in summary and attach supporting_evidence_ids. Do not insert bracketed citation strings into the paragraph. Each interpretive statement must carry its own evidence IDs and explicitly state uncertainty.
+
+For social-process evaluation:
+- return no more than two hypotheses;
+- use only hypothesis and signature IDs present in the supplied library;
+- a candidate hypothesis needs at least one meaningful provenance-backed supported signature;
+- at least one supported signature must rely on substantive evidence beyond temporal coincidence or activity-density context;
+- order hypotheses with the best-supported candidate interpretation first and mark any second interpretation as a plausible alternative;
+- form auditable evidence_groups from only the evidence IDs cited by their supported signatures;
+- put signatures that depend on the same underlying observation or sequence in the same group, and explain the grouping;
+- do not reuse one evidence ID across groups that are claimed to be independent;
+- mark relational_evidence=true only when a group contains supplied evidence explicitly marked relational_evidence=true;
+- do not infer confidence mechanically from evidence-group count;
+- use proposed_confidence only; deterministic local code computes the allowed cap and displayed confidence;
+- absent support remains unknown;
+- use contradicted_counter_signatures only for positive counterevidence;
+- if no hypothesis meets the floor, return no_clear_social_process_match with an empty hypotheses array.
+
+Do not output observed facts, behavioral-change rank, importance scores, causal claims, hidden chain of thought, or fields not defined by the schema.
