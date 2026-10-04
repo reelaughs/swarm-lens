@@ -31,6 +31,17 @@
       "title": "ContradictedCounterSignature",
       "type": "object"
     },
+    "ComparativeRationale": {
+      "additionalProperties": false,
+      "properties": {
+        "primary_hypothesis_id": {"minLength": 1, "title": "Primary Hypothesis Id", "type": "string"},
+        "statement": {"maxLength": 750, "minLength": 1, "title": "Statement", "type": "string"},
+        "evidence_ids": {"items": {"type": "string"}, "minItems": 1, "title": "Evidence Ids", "type": "array"}
+      },
+      "required": ["primary_hypothesis_id", "statement", "evidence_ids"],
+      "title": "ComparativeRationale",
+      "type": "object"
+    },
     "EvidenceGroup": {
       "additionalProperties": false,
       "properties": {
@@ -80,9 +91,10 @@
         "result": {"enum": ["candidate_hypotheses", "no_clear_social_process_match"], "title": "Result", "type": "string"},
         "rationale": {"minLength": 1, "title": "Rationale", "type": "string"},
         "supporting_evidence_ids": {"items": {"type": "string"}, "title": "Supporting Evidence Ids", "type": "array"},
-        "hypotheses": {"items": {"$ref": "#/$defs/ProposedHypothesis"}, "title": "Hypotheses", "type": "array"}
+        "hypotheses": {"items": {"$ref": "#/$defs/ProposedHypothesis"}, "title": "Hypotheses", "type": "array"},
+        "comparative_rationale": {"anyOf": [{"$ref": "#/$defs/ComparativeRationale"}, {"type": "null"}]}
       },
-      "required": ["result", "rationale", "supporting_evidence_ids", "hypotheses"],
+      "required": ["result", "rationale", "supporting_evidence_ids", "hypotheses", "comparative_rationale"],
       "title": "SocialProcessEvaluation",
       "type": "object"
     },
@@ -100,7 +112,7 @@
   },
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": "1.1", "title": "Schema Version", "type": "string"},
+    "schema_version": {"const": "1.2", "title": "Schema Version", "type": "string"},
     "analyst_note": {"$ref": "#/$defs/AnalystNote"},
     "interpretive_statements": {"items": {"$ref": "#/$defs/InterpretiveStatement"}, "title": "Interpretive Statements", "type": "array"},
     "social_process_evaluation": {"$ref": "#/$defs/SocialProcessEvaluation"}

@@ -1,0 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;500;600&display=swap");
+
+.swarmlens-shell,
+.swarmlens-shell .font-sans {
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.swarmlens-shell .font-serif,
+.swarmlens-shell h1,
+.swarmlens-shell h2,
+.swarmlens-shell h3 {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-optical-sizing: auto;
+}
+
+.swarmlens-shell .font-mono {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}

@@ -9,6 +9,12 @@ outputs/cached/
 *.log
 .venv/
 
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
 # Python artifacts
 __pycache__/
 *.pyc

@@ -61,15 +61,22 @@ class ProposedHypothesis(StrictModel):
     evidence_groups: list[EvidenceGroup] = Field(min_length=1)
 
 
+class ComparativeRationale(StrictModel):
+    primary_hypothesis_id: str = Field(min_length=1)
+    statement: str = Field(min_length=1, max_length=750)
+    evidence_ids: list[str] = Field(min_length=1)
+
+
 class SocialProcessEvaluation(StrictModel):
     result: Literal["candidate_hypotheses", "no_clear_social_process_match"]
     rationale: str = Field(min_length=1)
     supporting_evidence_ids: list[str]
     hypotheses: list[ProposedHypothesis]
+    comparative_rationale: ComparativeRationale | None
 
 
 class ModelInterpretation(StrictModel):
-    schema_version: Literal["1.1"]
+    schema_version: Literal["1.2"]
     analyst_note: AnalystNote
     interpretive_statements: list[InterpretiveStatement]
     social_process_evaluation: SocialProcessEvaluation

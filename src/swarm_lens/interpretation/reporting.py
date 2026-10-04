@@ -69,6 +69,16 @@ def render_markdown(result: Mapping[str, Any]) -> str:
                 "",
             ]
         )
+        comparison = evaluation["comparative_rationale"]
+        if comparison is not None:
+            lines.extend(
+                [
+                    f"Comparative rationale for `{comparison['primary_hypothesis_id']}`: {comparison['statement']}",
+                    "",
+                    f"Comparative evidence: {_ids(comparison['evidence_ids'])}",
+                    "",
+                ]
+            )
         for hypothesis in evaluation["hypotheses"]:
             lines.extend(
                 [

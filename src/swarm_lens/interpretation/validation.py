@@ -29,6 +29,8 @@ def _all_evidence_references(value: Mapping[str, Any]) -> list[str]:
         references.extend(statement["supporting_evidence_ids"])
     evaluation = value["social_process_evaluation"]
     references.extend(evaluation["supporting_evidence_ids"])
+    if evaluation["comparative_rationale"] is not None:
+        references.extend(evaluation["comparative_rationale"]["evidence_ids"])
     for hypothesis in evaluation["hypotheses"]:
         for signature in hypothesis["supported_signatures"]:
             references.extend(signature["evidence_ids"])
@@ -75,8 +77,12 @@ def validate_interpretation(
     hypotheses = evaluation["hypotheses"]
     if evaluation["result"] == "no_clear_social_process_match" and hypotheses:
         errors.append("no_clear_social_process_match requires an empty hypotheses array")
+    if evaluation["result"] == "no_clear_social_process_match" and evaluation["comparative_rationale"] is not None:
+        errors.append("no_clear_social_process_match requires comparative_rationale=null")
     if evaluation["result"] == "candidate_hypotheses" and not hypotheses:
         errors.append("candidate_hypotheses requires at least one hypothesis")
+    if evaluation["result"] == "candidate_hypotheses" and len(hypotheses) > 1 and evaluation["comparative_rationale"] is None:
+        errors.append("two or more candidate hypotheses require comparative_rationale")
     if len(hypotheses) > rules.max_hypotheses:
         errors.append(f"at most {rules.max_hypotheses} hypotheses may be returned")
     hypothesis_ids = [value["hypothesis_id"] for value in hypotheses]
@@ -90,6 +96,9 @@ def validate_interpretation(
             errors.append("candidate hypotheses require exactly one best_supported_candidate")
         if any(role != "plausible_alternative" for role in roles[1:]):
             errors.append("hypotheses after the first must be plausible_alternative interpretations")
+        comparison = evaluation["comparative_rationale"]
+        if comparison is not None and comparison["primary_hypothesis_id"] != hypotheses[0]["hypothesis_id"]:
+            errors.append("comparative_rationale.primary_hypothesis_id must match the best_supported_candidate")
 
     library_by_id = library.by_id
     confidence_order = rules.confidence_levels

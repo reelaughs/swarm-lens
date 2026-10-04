@@ -77,7 +77,7 @@ def _catalog_bundle() -> dict:
 
 def _no_clear_payload() -> dict:
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "analyst_note": {"summary": "The bounded evidence shows a change, but no clear social-process match.", "supporting_evidence_ids": ["swl-e-0001"]},
         "interpretive_statements": [
             {"statement": "The record is consistent with more than one interpretation.", "supporting_evidence_ids": ["swl-e-0001"], "uncertainty": "The observation window is bounded."}
@@ -87,6 +87,7 @@ def _no_clear_payload() -> dict:
             "rationale": "No library hypothesis clears the evidence floor.",
             "supporting_evidence_ids": ["swl-e-0001"],
             "hypotheses": [],
+            "comparative_rationale": None,
         },
     }
 
@@ -103,7 +104,7 @@ def _diffusion_payload(*, high_requirements: bool = False, with_counter: bool = 
     supported_ids = {value["signature_id"] for value in supported}
     all_ids = {"cross_agent_semantic_uptake", "cross_agent_behavioral_follow_through", "explicit_relay_or_address", "persistent_multi_agent_uptake"}
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "analyst_note": {"summary": "Cross-agent uptake is a plausible interpretation.", "supporting_evidence_ids": ["swl-e-0001", "swl-e-0002"]},
         "interpretive_statements": [
             {"statement": "The records are consistent with diffusion.", "supporting_evidence_ids": ["swl-e-0001", "swl-e-0002"], "uncertainty": "Lexical similarity does not establish exposure."}
@@ -147,6 +148,7 @@ def _diffusion_payload(*, high_requirements: bool = False, with_counter: bool = 
                     ],
                 }
             ],
+            "comparative_rationale": None,
         },
     }
 
@@ -312,6 +314,109 @@ def test_evidence_diversity_does_not_mechanically_determine_confidence() -> None
     hypothesis = result.validated_interpretation["social_process_evaluation"]["hypotheses"][0]
     assert hypothesis["evidence_diversity"] == "low"
     assert hypothesis["displayed_confidence"] == "high"
+
+
+def _two_hypothesis_payload() -> dict:
+    payload = _one_group_three_signature_payload()
+    payload["social_process_evaluation"]["hypotheses"].append(
+        {
+            "hypothesis_id": "delegation_role_differentiation",
+            "interpretation_role": "plausible_alternative",
+            "proposed_confidence": "moderate",
+            "summary": "Two task-assignment records make delegation a plausible alternative.",
+            "supported_signatures": [
+                {
+                    "signature_id": "explicit_task_assignment",
+                    "rationale": "Two records contain assignments.",
+                    "evidence_ids": ["swl-e-0002", "swl-e-0003"],
+                }
+            ],
+            "contradicted_counter_signatures": [],
+            "unknown_signature_ids": [
+                "complementary_task_differentiation",
+                "persistent_role_specialization",
+                "recipient_acknowledgement_or_action",
+            ],
+            "alternative_explanations": [],
+            "caveats": ["No recipient response is established."],
+            "evidence_groups": [
+                {
+                    "group_id": "assignment-one",
+                    "summary": "First assignment record.",
+                    "evidence_ids": ["swl-e-0002"],
+                    "supported_signature_ids": ["explicit_task_assignment"],
+                    "independence_rationale": "Separate record one.",
+                    "relational_evidence": False,
+                },
+                {
+                    "group_id": "assignment-two",
+                    "summary": "Second assignment record.",
+                    "evidence_ids": ["swl-e-0003"],
+                    "supported_signature_ids": ["explicit_task_assignment"],
+                    "independence_rationale": "Separate record two.",
+                    "relational_evidence": False,
+                },
+            ],
+        }
+    )
+    payload["social_process_evaluation"]["comparative_rationale"] = {
+        "primary_hypothesis_id": "information_diffusion",
+        "statement": "Diffusion is preferred because its relational uptake chain covers later behavior, while delegation lacks a recipient response despite having more evidence groups.",
+        "evidence_ids": ["swl-e-0001", "swl-e-0002"],
+    }
+    return payload
+
+
+def test_two_hypotheses_require_comparative_rationale() -> None:
+    config, library = _config_and_library()
+    payload = _two_hypothesis_payload()
+    payload["social_process_evaluation"]["comparative_rationale"] = None
+    result = validate_interpretation(payload, evidence_bundle=_catalog_bundle(), library=library, rules=config.interpretation)
+    assert not result.valid
+    assert any("require comparative_rationale" in value for value in result.errors)
+
+
+def test_comparative_primary_must_match_best_supported_candidate() -> None:
+    config, library = _config_and_library()
+    payload = _two_hypothesis_payload()
+    payload["social_process_evaluation"]["comparative_rationale"]["primary_hypothesis_id"] = "delegation_role_differentiation"
+    result = validate_interpretation(payload, evidence_bundle=_catalog_bundle(), library=library, rules=config.interpretation)
+    assert not result.valid
+    assert any("must match the best_supported_candidate" in value for value in result.errors)
+
+
+def test_comparative_rationale_rejects_fabricated_evidence() -> None:
+    config, library = _config_and_library()
+    payload = _two_hypothesis_payload()
+    payload["social_process_evaluation"]["comparative_rationale"]["evidence_ids"] = ["swl-e-fabricated"]
+    result = validate_interpretation(payload, evidence_bundle=_catalog_bundle(), library=library, rules=config.interpretation)
+    assert not result.valid
+    assert any("unknown evidence IDs" in value for value in result.errors)
+
+
+def test_comparative_rationale_does_not_rank_by_group_count() -> None:
+    config, library = _config_and_library()
+    result = validate_interpretation(
+        _two_hypothesis_payload(), evidence_bundle=_catalog_bundle(), library=library, rules=config.interpretation
+    )
+    assert result.valid
+    hypotheses = result.validated_interpretation["social_process_evaluation"]["hypotheses"]
+    assert hypotheses[0]["interpretation_role"] == "best_supported_candidate"
+    assert hypotheses[0]["independent_evidence_group_count"] == 1
+    assert hypotheses[1]["independent_evidence_group_count"] == 2
+
+
+def test_no_clear_requires_null_comparative_rationale() -> None:
+    config, library = _config_and_library()
+    payload = _no_clear_payload()
+    payload["social_process_evaluation"]["comparative_rationale"] = {
+        "primary_hypothesis_id": "information_diffusion",
+        "statement": "Not applicable.",
+        "evidence_ids": ["swl-e-0001"],
+    }
+    result = validate_interpretation(payload, evidence_bundle=_catalog_bundle(), library=library, rules=config.interpretation)
+    assert not result.valid
+    assert any("comparative_rationale=null" in value for value in result.errors)
 
 
 def test_unknown_evidence_ids_are_rejected() -> None:

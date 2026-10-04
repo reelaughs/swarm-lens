@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://swarm-lens.local/schemas/frontend_episode_view_model.schema.json",
+  "title": "SwarmLens frozen episode frontend view model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "viewModelVersion",
+    "presentation",
+    "episode",
+    "signalFamilies",
+    "turningPoints",
+    "sourceIdentity"
+  ],
+  "properties": {
+    "viewModelVersion": {"const": "1.0"},
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "scope", "methodologicalGuardrails"],
+      "properties": {
+        "label": {"const": "Frozen pipeline"},
+        "scope": {"type": "string", "minLength": 1},
+        "methodologicalGuardrails": {
+          "type": "array",
+          "minItems": 7,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "episode": {"$ref": "#/$defs/episode"},
+    "signalFamilies": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/signalFamily"}
+    },
+    "turningPoints": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {"$ref": "#/$defs/turningPoint"}
+    },
+    "sourceIdentity": {"type": "object", "minProperties": 10}
+  },
+  "$defs": {
+    "episode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slug",
+        "goalId",
+        "goalText",
+        "start",
+        "end",
+        "recordCount",
+        "recordCountsByKind",
+        "uniqueAgentCount",
+        "turningPointCount"
+      ],
+      "properties": {
+        "slug": {"const": "perform-novel-research"},
+        "goalId": {"type": "string", "minLength": 1},
+        "goalText": {"const": "Perform novel research!"},
+        "start": {"type": "string", "format": "date-time"},
+        "end": {"type": "string", "format": "date-time"},
+        "recordCount": {"type": "integer", "minimum": 1},
+        "recordCountsByKind": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "uniqueAgentCount": {"type": "integer", "minimum": 1},
+        "turningPointCount": {"const": 5}
+      }
+    },
+    "signalFamily": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": {
+          "enum": ["communication", "intention", "participation", "action_type"]
+        },
+        "label": {"type": "string", "minLength": 1}
+      }
+    },
+    "signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "eligible",
+        "jensenShannonDivergence",
+        "standardizedScore",
+        "distributionChanges"
+      ],
+      "properties": {
+        "id": {
+          "enum": ["communication", "intention", "participation", "action_type"]
+        },
+        "label": {"type": "string"},
+        "eligible": {"type": "boolean"},
+        "jensenShannonDivergence": {"type": ["number", "null"]},
+        "standardizedScore": {"type": ["number", "null"]},
+        "distributionChanges": {"type": ["array", "object"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "timestamp",
+        "relation",
+        "agentName",
+        "agentModel",
+        "eventKind",
+        "actionType",
+        "roomId",
+        "text",
+        "categories",
+        "selectionReasons",
+        "provenance"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "relation": {"enum": ["before", "after"]},
+        "agentName": {"type": ["string", "null"]},
+        "agentModel": {"type": ["string", "null"]},
+        "eventKind": {"type": ["string", "null"]},
+        "actionType": {"type": ["string", "null"]},
+        "roomId": {"type": ["string", "null"]},
+        "text": {"type": ["string", "null"]},
+        "categories": {"type": "array", "items": {"type": "string"}},
+        "selectionReasons": {"type": "array", "items": {"type": "string"}},
+        "provenance": {"type": "object"}
+      }
+    },
+    "turningPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rank",
+        "comparisonId",
+        "timestamp",
+        "timelinePositionPercent",
+        "aggregateDetectorScore",
+        "contributingComponents",
+        "windowSizeReliable",
+        "signals",
+        "deterministicDescriptions",
+        "activity",
+        "contextFlags",
+        "externalContextEvents",
+        "compactEvidence",
+        "reconstruction",
+        "interpretation",
+        "referencedEvidence",
+        "sourcePaths"
+      ],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+        "comparisonId": {"type": "string", "minLength": 1},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "timelinePositionPercent": {"type": "number", "minimum": 0, "maximum": 100},
+        "aggregateDetectorScore": {"type": "number"},
+        "contributingComponents": {"type": "array", "items": {"type": "string"}},
+        "windowSizeReliable": {"type": "boolean"},
+        "signals": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/signal"}
+        },
+        "deterministicDescriptions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "activity": {"type": "object"},
+        "contextFlags": {"type": "array", "items": {"type": "string"}},
+        "externalContextEvents": {"type": "array"},
+        "compactEvidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/evidence"}
+        },
+        "reconstruction": {"type": "object"},
+        "interpretation": {"type": "object"},
+        "referencedEvidence": {"type": "array"},
+        "sourcePaths": {"type": "object", "minProperties": 6}
+      }
+    }
+  }
+}

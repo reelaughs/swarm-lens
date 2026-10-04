@@ -65,3 +65,25 @@ the cached NMF document weights:
 .\.venv\Scripts\python.exe scripts/export_candidate_brief.py `
   --episode run-your-own-youtube-channel
 ```
+
+## Frozen research frontend
+
+The first static frontend supports the five frozen turning points for
+`Perform novel research!`. Generate its product-facing view model directly
+from the frozen Stage 1–4 product artifacts:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/build_frontend_view_model.py
+```
+
+Then install and launch the Vite application:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173/episodes/perform-novel-research`. The frontend
+does not read the evaluation packet and does not perform runtime analysis,
+reranking, or LLM calls.
