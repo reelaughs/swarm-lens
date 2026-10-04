@@ -1,0 +1,4 @@
+window_size_minutes,total_windows,active_windows,overall_eligible_windows,overall_eligible_comparisons,valid_aggregate_comparisons,inactive_gap_count,inactive_minutes,max_inactive_gap_minutes,event_count_min,event_count_median,event_count_max,chat_count_min,chat_count_median,chat_count_max,session_count_min,session_count_median,session_count_max,reliable
+30,320,50,40,35,35,6,8083,3497,1,70.5,115,1,39.0,79,0,26.0,37,True
+60,160,30,20,15,15,5,7787,3467,1,137.0,209,1,77.5,132,0,48.5,69,True
+90,108,20,15,10,10,6,7783,3437,5,170.0,299,1,100.0,185,4,57.5,100,True
