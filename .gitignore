@@ -1,0 +1,18 @@
+# Research data and generated outputs
+data/raw/
+data/interim/
+data/processed/
+outputs/cached/
+
+# Local environment and logs
+.env
+*.log
+.venv/
+
+# Python artifacts
+__pycache__/
+*.pyc
+
+# OS and notebook artifacts
+.DS_Store
+.ipynb_checkpoints/

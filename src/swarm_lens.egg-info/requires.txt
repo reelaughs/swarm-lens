@@ -1,0 +1,4 @@
+pyarrow<23,>=18
+
+[dev]
+pytest<10,>=8
