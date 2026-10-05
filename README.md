@@ -10,6 +10,8 @@ Instead of asking an investigator to read thousands of agent messages and action
 
 Built for the *AI Swarm Dynamics Hackathon*
 
+Demo video can be accessed through https://app.trupeer.ai/view/OjtoVIba7/swarm-lens
+
 ---
 
 ## Why SwarmLens?
