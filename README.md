@@ -4,21 +4,17 @@
 
 SwarmLens is a retrospective investigation tool for multi-agent AI systems.
 
-It asks:
-
-> **What changed the swarm?**
+It asks, "What changed the swarm?"
 
 Instead of asking an investigator to read thousands of agent messages and actions, SwarmLens identifies candidate behavioral turning points, reconstructs the evidence around them, and produces auditable, source-grounded hypotheses about what may have changed.
 
-Built for the **AI Swarm Dynamics Hackathon**.
+Built for the *AI Swarm Dynamics Hackathon*
 
 ---
 
 ## Why SwarmLens?
 
-When large populations of autonomous agents interact, the bottleneck is not simply token processing.
-
-It is **sensemaking**.
+When large populations of autonomous agents interact, the bottleneck is not simply token processing. It is *sensemaking*.
 
 An investigator needs to understand:
 
@@ -61,9 +57,7 @@ SwarmLens then:
 7. **Validates the interpretation locally**, including checking that referenced evidence belongs to the supplied evidence bundle.
 8. **Packages the result into an investigator-facing incident map.**
 
-The goal is not to declare that a candidate *caused* a swarm-level change.
-
-The model interpretation remains a **hypothesis for investigation**, not an assertion of causality or importance.
+The goal is not to declare that a candidate caused a swarm-level change. Rather, the model interpretation remains a hypothesis for investigation, not an assertion of causality or importance. The final judgement is left up to the user. 
 
 ---
 
@@ -215,12 +209,8 @@ Precomputed investigations do not require an API key. To approve evidence-constr
 
 The frontend uses History API routes. Production hosting must rewrite unknown application paths to `index.html` so direct investigation URLs continue to work.
 
-## Built for the AI Swarm Dynamics Hackathon
+
 
 The hackathon asks what tools we would wish we had when investigating the next large-scale autonomous-agent incident.
 
-SwarmLens explores one answer:
-
-> Don't show the investigator everything.
->
-> Show them what changed — and let them verify why.
+SwarmLens explores one answer: Don't show the investigator everything. Show them what changed, give them what they need to know in a focused manner in order to help them verify why and leave them with the power and clarity for the final conclusions. 
