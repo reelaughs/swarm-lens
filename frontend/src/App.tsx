@@ -3,6 +3,7 @@ import { SiteHeader } from "./components/SiteHeader";
 import { loadEpisode, loadEpisodeCatalog } from "./data/loadEpisode";
 import { loadRuntimeEpisode } from "./data/api";
 import type { EpisodeCatalog, EpisodeViewModel } from "./data/types";
+import { browserRouteHref, isHostedDemo, routePathFromLocation } from "./lib/hosting";
 import {
   datasetPath,
   episodePath,
@@ -41,7 +42,7 @@ function StatePage({
 }
 
 export default function App() {
-  const [route, setRoute] = useState<AppRoute>(() => parseRoute(window.location.pathname));
+  const [route, setRoute] = useState<AppRoute>(() => parseRoute(routePathFromLocation(window.location)));
   const [catalog, setCatalog] = useState<EpisodeCatalog | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [data, setData] = useState<EpisodeViewModel | null>(null);
@@ -64,9 +65,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onPopState = () => setRoute(parseRoute(window.location.pathname));
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    const onLocationChange = () => setRoute(parseRoute(routePathFromLocation(window.location)));
+    window.addEventListener("popstate", onLocationChange);
+    if (isHostedDemo) window.addEventListener("hashchange", onLocationChange);
+    return () => {
+      window.removeEventListener("popstate", onLocationChange);
+      if (isHostedDemo) window.removeEventListener("hashchange", onLocationChange);
+    };
   }, []);
 
   const activeSlug = route.kind === "episode" || route.kind === "turningPoint" ? route.slug : null;
@@ -106,7 +111,9 @@ export default function App() {
     return () => { active = false; };
   }, [activeEntry, catalog, invalidRequestedRank]);
 
-  const runtimeRoute = route.kind === "runtimeEpisode" || route.kind === "runtimeTurningPoint" ? route : null;
+  const runtimeRoute = !isHostedDemo && (
+    route.kind === "runtimeEpisode" || route.kind === "runtimeTurningPoint"
+  ) ? route : null;
   useEffect(() => {
     let active = true;
     if (!runtimeRoute) {
@@ -134,13 +141,31 @@ export default function App() {
   }, [runtimeRoute?.runId, runtimeRoute?.slug]);
 
   const navigate = (path: string) => {
-    if (window.location.pathname !== path) window.history.pushState({}, "", path);
+    const href = browserRouteHref(path);
+    if (isHostedDemo) {
+      if (window.location.hash !== `#${path}`) window.history.pushState({}, "", href);
+    } else if (window.location.pathname !== path) {
+      window.history.pushState({}, "", href);
+    }
     setRoute(parseRoute(path));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   let content;
-  if (route.kind === "dataset") {
+  const localRuntimeRoute = route.kind === "dataset"
+    || route.kind === "run"
+    || route.kind === "runtimeEpisode"
+    || route.kind === "runtimeTurningPoint";
+  if (isHostedDemo && localRuntimeRoute) {
+    content = (
+      <StatePage
+        eyebrow="Hosted read-only demo"
+        title="Runtime analysis is available locally"
+        message="This hosted demo provides interactive access to precomputed investigations. Dataset upload and runtime analysis are available when running SwarmLens locally."
+        action={{ label: "Explore precomputed investigations", onClick: () => navigate("/") }}
+      />
+    );
+  } else if (route.kind === "dataset") {
     content = <DatasetPage datasetId={route.datasetId} onRunCreated={(runId) => navigate(runPath(runId))} />;
   } else if (route.kind === "run") {
     content = (
@@ -202,6 +227,7 @@ export default function App() {
     content = (
       <HomePage
         episodes={catalog.episodes}
+        hostedDemo={isHostedDemo}
         onOpenEpisode={(slug) => navigate(episodePath(slug))}
         onDatasetCreated={(datasetId) => navigate(datasetPath(datasetId))}
       />
@@ -269,6 +295,7 @@ export default function App() {
           runtimeData?.presentation.label
           ?? (data && data.episode.slug === activeSlug ? data.presentation.label : undefined)
         }
+        homeHref={browserRouteHref("/")}
         onHome={() => navigate("/")}
       />
       {content}

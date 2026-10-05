@@ -28,6 +28,8 @@ code, pre { font-family: var(--font-mono); }
 .home-hero { max-width: 900px; padding-bottom: 48px; border-bottom: 1px solid var(--border); }
 .home-hero h1 { max-width: 760px; margin: 13px 0 19px; font: 500 clamp(51px, 6vw, 76px)/.98 var(--font-serif); color: var(--ink-strong); letter-spacing: -.025em; }
 .home-hero p { max-width: 760px; margin: 0; color: #526159; font-size: 18px; line-height: 1.62; }
+.hosted-demo-note { display: flex; gap: 16px; align-items: baseline; padding: 17px 0; border-bottom: 1px solid var(--border); color: #63736a; font-size: 12px; line-height: 1.5; }
+.hosted-demo-note strong { flex: 0 0 auto; color: var(--green-dark); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 .launcher-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); border-bottom: 1px solid var(--border); }
 .launcher-panel { position: relative; min-width: 0; padding: 42px 0 52px 42px; }
 .launcher-panel:first-child { padding-right: 42px; padding-left: 0; border-right: 1px solid var(--border); }
@@ -252,10 +254,13 @@ code, pre { font-family: var(--font-mono); }
 .state-page p { max-width: 680px; color: #5a6a61; font-size: 15px; line-height: 1.6; }
 
 .dataset-launcher { display: grid; gap: 12px; margin-top: 24px; padding: 18px; border: 1px solid var(--border); background: var(--surface-muted); }
-.dataset-launcher label { color: var(--green-dark); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.dataset-launcher label, .dataset-launcher-label { color: var(--green-dark); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .dataset-launcher input { width: 100%; color: #435249; font: 400 12px/1.4 var(--font-sans); }
 .dataset-launcher .outline-button { justify-self: start; }
 .dataset-launcher small, .workflow-note { color: #68776e; font-size: 11px; line-height: 1.55; }
+.dataset-launcher small a { color: var(--green-dark); }
+.dataset-launcher--hosted .outline-button { margin-top: 0; }
+.hosted-upload-message { margin: 2px 0 0; padding: 11px 12px; border-left: 3px solid var(--green-mid); background: #edf4ef; color: #405249; font-size: 12px; line-height: 1.5; }
 .workflow-page { min-height: calc(100vh - 128px); padding: 70px 0 100px; }
 .workflow-page > h1 { max-width: 820px; margin: 14px 0 20px; color: var(--ink-strong); font: 500 clamp(42px, 5vw, 62px)/1.02 var(--font-serif); }
 .scope-list { margin-top: 34px; border-top: 1px solid var(--border); }
@@ -299,6 +304,7 @@ code, pre { font-family: var(--font-mono); }
   .home-page { padding-top: 48px; }
   .home-hero h1 { font-size: 48px; }
   .home-hero p { font-size: 16px; }
+  .hosted-demo-note { align-items: flex-start; flex-direction: column; gap: 5px; }
   .preview-columns, .signal-cards, .activity-strip, .diagnostic-grid, .status-grid, .detector-shifts, .detector-shifts--compact { grid-template-columns: 1fr; }
   .signal-card, .activity-strip > div { border-right: 0; border-bottom: 1px solid var(--border); }
   .signal-card:last-child, .activity-strip > div:last-child { border-bottom: 0; }

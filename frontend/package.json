@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:hosted": "tsc --noEmit && vite build --mode hosted",
     "preview": "vite preview",
+    "preview:hosted": "vite preview --mode hosted",
     "test": "vitest run"
   },
   "dependencies": {

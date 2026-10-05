@@ -2,10 +2,11 @@ import type { MouseEvent } from "react";
 
 interface Props {
   label?: string;
+  homeHref: string;
   onHome: () => void;
 }
 
-export function SiteHeader({ label, onHome }: Props) {
+export function SiteHeader({ label, homeHref, onHome }: Props) {
   const navigateHome = (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -15,7 +16,7 @@ export function SiteHeader({ label, onHome }: Props) {
   return (
     <header className="site-header">
       <div className="brand-lockup">
-        <a className="brand" href="/" onClick={navigateHome}>SwarmLens</a>
+        <a className="brand" href={homeHref} onClick={navigateHome}>SwarmLens</a>
         <span className="tagline">What changed the swarm?</span>
       </div>
       <div className="header-meta" aria-label="Project context">

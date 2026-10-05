@@ -2,13 +2,18 @@ import { useState, type FormEvent } from "react";
 import { uploadDataset } from "../data/api";
 
 interface Props {
+  hostedDemo?: boolean;
   onCreated: (datasetId: string) => void;
 }
 
-export function DatasetLauncher({ onCreated }: Props) {
+const HOSTED_UPLOAD_MESSAGE =
+  "Dataset upload is available when running SwarmLens locally. This hosted demo uses precomputed investigations.";
+
+export function DatasetLauncher({ hostedDemo = false, onCreated }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hostedMessageVisible, setHostedMessageVisible] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -23,6 +28,28 @@ export function DatasetLauncher({ onCreated }: Props) {
       setBusy(false);
     }
   };
+
+  if (hostedDemo) {
+    return (
+      <div className="dataset-launcher dataset-launcher--hosted">
+        <span className="dataset-launcher-label">Dataset bundle</span>
+        <button
+          className="outline-button"
+          type="button"
+          onClick={() => setHostedMessageVisible(true)}
+        >
+          Upload dataset
+        </button>
+        <small>
+          Upload and runtime analysis are available in the local application.{" "}
+          <a href="https://github.com/reelaughs/swarm-lens#running-locally">View local setup instructions.</a>
+        </small>
+        {hostedMessageVisible && (
+          <p className="hosted-upload-message" role="status">{HOSTED_UPLOAD_MESSAGE}</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <form className="dataset-launcher" onSubmit={submit}>

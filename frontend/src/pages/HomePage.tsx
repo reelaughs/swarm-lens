@@ -3,14 +3,16 @@ import type { EpisodeCatalogEntry } from "../data/types";
 import { utcDate } from "../lib/format";
 import { episodePath } from "../lib/routes";
 import { DatasetLauncher } from "../components/DatasetLauncher";
+import { browserRouteHref } from "../lib/hosting";
 
 interface Props {
   episodes: EpisodeCatalogEntry[];
+  hostedDemo?: boolean;
   onOpenEpisode: (slug: string) => void;
   onDatasetCreated: (datasetId: string) => void;
 }
 
-export function HomePage({ episodes, onOpenEpisode, onDatasetCreated }: Props) {
+export function HomePage({ episodes, hostedDemo = false, onOpenEpisode, onDatasetCreated }: Props) {
   const openEpisode = (event: MouseEvent<HTMLAnchorElement>, slug: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -28,6 +30,16 @@ export function HomePage({ episodes, onOpenEpisode, onDatasetCreated }: Props) {
         </p>
       </section>
 
+      {hostedDemo && (
+        <aside className="hosted-demo-note" aria-label="Hosted demo status">
+          <strong>Hosted read-only demo</strong>
+          <span>
+            Explore precomputed SwarmLens investigations here. Dataset upload and runtime analysis
+            are available when running SwarmLens locally.
+          </span>
+        </aside>
+      )}
+
       <div className="launcher-grid">
         <section className="launcher-panel" aria-labelledby="analyze-heading">
           <div className="launcher-number">01</div>
@@ -37,7 +49,7 @@ export function HomePage({ episodes, onOpenEpisode, onDatasetCreated }: Props) {
             Upload a multi-agent interaction dataset, validate it, choose an episode,
             and run a retrospective swarm investigation.
           </p>
-          <DatasetLauncher onCreated={onDatasetCreated} />
+          <DatasetLauncher hostedDemo={hostedDemo} onCreated={onDatasetCreated} />
           <p className="workflow-note">Custom investigation windows and additional dataset adapters are planned.</p>
         </section>
 
@@ -49,7 +61,7 @@ export function HomePage({ episodes, onOpenEpisode, onDatasetCreated }: Props) {
             {episodes.map((episode) => (
               <a
                 className="example-card"
-                href={episodePath(episode.slug)}
+                href={browserRouteHref(episodePath(episode.slug))}
                 key={episode.slug}
                 onClick={(event) => openEpisode(event, episode.slug)}
               >

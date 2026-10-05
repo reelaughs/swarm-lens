@@ -1,15 +1,22 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5173,
-    proxy: {
-      "/api": "http://127.0.0.1:8000",
+export default defineConfig(({ mode }) => {
+  const hostedDemo = mode === "hosted";
+  return {
+    base: hostedDemo ? "/swarm-lens/" : "/",
+    define: {
+      "import.meta.env.VITE_SWARMLENS_MODE": JSON.stringify(hostedDemo ? "hosted" : "local"),
     },
-  },
-  preview: {
-    port: 4173,
-  },
+    plugins: [react()],
+    server: {
+      port: 5173,
+      proxy: {
+        "/api": "http://127.0.0.1:8000",
+      },
+    },
+    preview: {
+      port: 4173,
+    },
+  };
 });
