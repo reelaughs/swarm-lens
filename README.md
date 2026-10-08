@@ -32,9 +32,7 @@ Search helps when we already know what to look for.
 
 But incident investigation also has an **unknown-unknown problem**: important behaviors may not be known in advance, so they cannot simply be queried with a predefined classifier or search term.
 
-SwarmLens therefore treats swarm investigation as a problem of **progressive forensic compression**:
-
-> Reduce a large stream of agent activity to a small number of things a human should inspect, while preserving a path back to the underlying evidence.
+SwarmLens therefore treats swarm investigation as a problem of progressive forensic compression: Reduce a large stream of agent activity to a small number of things a human should inspect, while preserving a path back to the underlying evidence.
 
 ---
 
@@ -110,7 +108,7 @@ Evidence references must come from that candidate's allowlisted evidence bundle,
 
 The interpretation is therefore a hypothesis for investigation, not an assertion of causality, importance, harmfulness, or collusion.
 
-## Validation is not a rubber stamp
+## Validation /= a rubber stamp
 
 In the final runtime interpretation pass, all five detected candidates ultimately produced validated interpretations.
 
@@ -129,17 +127,11 @@ SwarmLens presents candidate turning points on a temporal incident map. Investig
 - confidence and uncertainty;
 - and the underlying source evidence.
 
-**Rank is not importance.**
-
-A highly ranked candidate means the detector observed comparatively strong behavioral change. It does not establish that the event was the most causally or substantively important event in the episode.
+Rank is not the same thing as importance. A highly ranked candidate means the detector observed comparatively strong behavioral change. It does not establish that the event was the most causally or substantively important event in the episode.
 
 ## Design principle: epistemic compression
 
-The goal is not merely to summarize logs.
-
-It is **epistemic compression**:
-
-> Preserve the small fraction of information needed to understand an incident without hiding how the resulting story was constructed.
+Again, the goal is not merely to summarize logs but epistemic compression; preserve the small fraction of information needed to understand an incident without hiding how the resulting story was constructed.
 
 SwarmLens aims to reduce investigative cognitive burden without replacing the underlying evidence with an opaque AI-generated narrative.
 
